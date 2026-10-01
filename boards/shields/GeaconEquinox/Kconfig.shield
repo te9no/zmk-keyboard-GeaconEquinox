@@ -1,0 +1,5 @@
+config SHIELD_GEACON_EQUINOX_LEFT
+    def_bool $(shields_list_contains,geacon_equinox_left)
+
+config SHIELD_GEACON_EQUINOX_RIGHT
+    def_bool $(shields_list_contains,geacon_equinox_right)

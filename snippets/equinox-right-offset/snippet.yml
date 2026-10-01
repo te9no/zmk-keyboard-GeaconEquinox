@@ -1,0 +1,3 @@
+name: equinox-right-offset
+append:
+  EXTRA_DTC_OVERLAY_FILE: equinox-right-offset.overlay

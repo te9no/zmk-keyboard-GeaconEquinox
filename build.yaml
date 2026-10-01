@@ -1,0 +1,17 @@
+include:
+  - board: xiao_ble//zmk
+    shield: geacon_equinox_left
+    snippet: equinox-us studio-rpc-usb-uart zmk-usb-logging equinox-cdc
+    artifact-name: geacon_equinox_left_us
+  - board: xiao_ble//zmk
+    shield: geacon_equinox_right
+    snippet: equinox-us equinox-right-offset zmk-usb-logging equinox-cdc
+    artifact-name: geacon_equinox_right_us
+  - board: xiao_ble//zmk
+    shield: geacon_equinox_left
+    snippet: equinox-jis studio-rpc-usb-uart zmk-usb-logging equinox-cdc
+    artifact-name: geacon_equinox_left_jis
+  - board: xiao_ble//zmk
+    shield: geacon_equinox_right
+    snippet: equinox-jis equinox-right-offset zmk-usb-logging equinox-cdc
+    artifact-name: geacon_equinox_right_jis

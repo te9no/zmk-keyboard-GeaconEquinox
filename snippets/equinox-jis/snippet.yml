@@ -1,0 +1,3 @@
+name: equinox-jis
+append:
+  EXTRA_DTC_OVERLAY_FILE: equinox-jis.overlay

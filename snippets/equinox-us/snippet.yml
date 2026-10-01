@@ -1,0 +1,3 @@
+name: equinox-us
+append:
+  EXTRA_DTC_OVERLAY_FILE: equinox-us.overlay

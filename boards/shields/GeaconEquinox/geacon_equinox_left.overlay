@@ -1,0 +1,62 @@
+#include "GeaconEquinox.dtsi"
+/ {
+    pat_listener {
+        compatible = "zmk,input-listener";
+        device = <&pat9125>;
+        /* TBENC reference inverts X in the listener and Y in the driver.
+         * Mounting direction still requires hardware verification. */
+        input-processors = <&zip_xy_transform INPUT_TRANSFORM_X_INVERT>;
+        scroll {
+            layers = <1 3>;
+            input-processors = <&zip_xy_transform INPUT_TRANSFORM_X_INVERT>,
+                               <&zip_xy_to_scroll_mapper>;
+        };
+    };
+    right_tb_listener {
+        compatible = "zmk,input-listener";
+        device = <&right_tb_split>;
+        scroll {
+            layers = <1 3>;
+            input-processors = <&zip_xy_to_scroll_mapper>;
+        };
+    };
+};
+&gpio1 {
+    pat_address {
+        gpio-hog;
+        /* NCS/ID_SEL driven low: I2C address 0x75. */
+        gpios = <11 GPIO_ACTIVE_HIGH>;
+        output-low;
+    };
+};
+&pinctrl {
+    pat_i2c_default: pat_i2c_default {
+        group1 { psels = <NRF_PSEL(TWIM_SDA, 0, 4)>, <NRF_PSEL(TWIM_SCL, 0, 5)>; };
+    };
+    pat_i2c_sleep: pat_i2c_sleep {
+        group1 {
+            psels = <NRF_PSEL(TWIM_SDA, 0, 4)>, <NRF_PSEL(TWIM_SCL, 0, 5)>;
+            low-power-enable;
+        };
+    };
+};
+&i2c0 {
+    status = "okay";
+    compatible = "nordic,nrf-twim";
+    pinctrl-0 = <&pat_i2c_default>;
+    pinctrl-1 = <&pat_i2c_sleep>;
+    pinctrl-names = "default", "sleep";
+    clock-frequency = <100000>;
+    pat9125: pat9125@75 {
+        compatible = "pixart,pat912x";
+        reg = <0x75>;
+        motion-gpios = <&gpio1 12 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+        res-x-cpi = <300>;
+        res-y-cpi = <300>;
+        zephyr,axis-x = <INPUT_REL_X>;
+        zephyr,axis-y = <INPUT_REL_Y>;
+        invert-y;
+        sleep1-enable;
+        sleep2-enable;
+    };
+};

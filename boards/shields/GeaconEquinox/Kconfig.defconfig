@@ -1,0 +1,13 @@
+if SHIELD_GEACON_EQUINOX_LEFT || SHIELD_GEACON_EQUINOX_RIGHT
+config ZMK_KEYBOARD_NAME
+    default "GeaconEquinox"
+config ZMK_SPLIT
+    default y
+endif
+
+if SHIELD_GEACON_EQUINOX_LEFT
+config ZMK_SPLIT_ROLE_CENTRAL
+    default y
+config ZMK_SPLIT_BLE_CENTRAL_PERIPHERALS
+    default 1
+endif
