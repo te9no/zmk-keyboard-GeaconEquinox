@@ -1,0 +1,45 @@
+name: Draw keymaps
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'config/*.keymap'
+      - 'config/equinox_dial.dtsi'
+      - 'snippets/equinox-*/**'
+      - 'scripts/draw_keymaps.py'
+      - '.github/workflows/draw-keymap.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: keymap-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  draw:
+    if: startsWith(github.ref, 'refs/heads/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: te9no/zmk-workspace
+          ref: a49f67f5ab5392d45bb3209d68f0f17594f62d9a
+          path: .keymap-svg-tools
+          persist-credentials: false
+      - name: Generate and verify diagrams
+        run: |
+          python3 scripts/draw_keymaps.py --tools-dir .keymap-svg-tools/scripts
+          python3 scripts/draw_keymaps.py --tools-dir .keymap-svg-tools/scripts --check
+      - name: Commit changed diagrams only
+        env:
+          TARGET_BRANCH: ${{ github.ref_name }}
+        run: |
+          git add keymap-svg/*.svg
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'docs: update keymap diagrams'
+          git push origin "HEAD:$TARGET_BRANCH"

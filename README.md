@@ -11,7 +11,7 @@
 
 Split keyboard · Dual optical pointing · US / JIS · ZMK
 
-[The Pair](#the-pair--対の存在) · [Anatomy](#anatomy--ふたつの感覚) · [Interface](#interface--境界を渡る) · [Guide](docs/firmware.md)
+[The Pair](#the-pair--対の存在) · [Anatomy](#anatomy--ふたつの感覚) · [Interface](#interface--境界を渡る) · [Keymap](#keymap--指先の地図) · [Guide](docs/firmware.md)
 
 </div>
 
@@ -69,7 +69,7 @@ Peripheralとして左手とBLEでつながる。
 左右一組のファームウェアを選ぶ。
 
 **受け継がれる操作。**<br>
-Solsticeを参照した、通常・Fn・Mouse・Scroll・Bluetoothの5レイヤー。
+Solsticeを参照した、通常・Fn・Mouse・Scroll・Bluetoothの5レイヤーに、専用のDialレイヤーを加えた構成。
 Spaceを長押しすればFnへ。ポインティングはスクロールへ姿を変える。
 
 **もうひとつの読み方。**<br>
@@ -77,6 +77,38 @@ Fn＋TabでLayout Shiftを切り替える。US/JISどちらの構成にも備え
 切り替えた状態は再起動後も引き継ぐ。
 
 [USキーマップ](config/GeaconEquinox_US.keymap) · [JISキーマップ](config/GeaconEquinox_JIS.keymap)
+
+## Keymap | 指先の地図
+
+ふたつの配列、ひとつの操作感。実際のキー位置とキーマップから生成した図です。
+キー中央はタップ、下段は長押し。`LT n`は長押しでレイヤーn、`TRANS`は下のレイヤーに委ねるキーです。
+図はリポジトリの初期設定を示し、Studioで変更した内容は含みません。
+
+### US
+
+![US — 通常レイヤー](keymap-svg/GeaconEquinox_US-base.svg)
+
+<details>
+<summary>USの全6レイヤーを見る</summary>
+
+![US — Def / Fnc / Mouse / Scr / BT / Dial](keymap-svg/GeaconEquinox_US.svg)
+
+</details>
+
+### JIS
+
+![JIS — 通常レイヤー](keymap-svg/GeaconEquinox_JIS-base.svg)
+
+<details>
+<summary>JISの全6レイヤーを見る</summary>
+
+![JIS — Def / Fnc / Mouse / Scr / BT / Dial](keymap-svg/GeaconEquinox_JIS.svg)
+
+</details>
+
+`DIAL / MENU`はダイヤルメニュー、`SELECT / EXIT`はタップで選択・長押しで終了。
+`US/JIS / SHIFT`はLayout Shiftの切り替えを表します。
+図の[生成・更新方法](docs/keymap-diagrams.md)。
 
 ## Field Guide | 手に取るために
 
