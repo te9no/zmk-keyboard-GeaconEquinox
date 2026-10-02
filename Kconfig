@@ -1,6 +1,6 @@
 config EQUINOX_PAT_DIAGNOSTICS
     bool "Equinox PAT9125 read-only diagnostics"
-    depends on I2C && GPIO && PAT9125
+    depends on I2C && GPIO && ZMK_HIRES_DIAL
     default n
 
 config EQUINOX_PMW_DIAGNOSTICS

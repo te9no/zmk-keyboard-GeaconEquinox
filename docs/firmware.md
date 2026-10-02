@@ -47,7 +47,7 @@ ZMK本体はcormoranフォーク、外部モジュールはコミットSHAで固
 既存の `te9no/zmk-workspace` に専用west環境を用意した場合：
 
 ```sh
-ZMK_CONFIG_ROOT=/zmk-workspace/config/zmk-config-GeaconEquinox \
+ZMK_CONFIG_ROOT=/zmk-workspace/config/zmk-keyboard-GeaconEquinox \
   ./just.sh --profile geacon-equinox build-fast geacon_equinox --pristine=always
 ```
 
@@ -55,8 +55,8 @@ ZMK_CONFIG_ROOT=/zmk-workspace/config/zmk-config-GeaconEquinox \
 
 ```sh
 west build -s zmk/app -b xiao_ble//zmk -d build/equinox-left-us -- \
-  -DZMK_CONFIG=/absolute/path/zmk-config-GeaconEquinox/config \
-  -DZMK_EXTRA_MODULES=/absolute/path/zmk-config-GeaconEquinox \
+  -DZMK_CONFIG=/absolute/path/zmk-keyboard-GeaconEquinox/config \
+  -DZMK_EXTRA_MODULES=/absolute/path/zmk-keyboard-GeaconEquinox \
   -DSHIELD=geacon_equinox_left \
   -DSNIPPET="equinox-us studio-rpc-usb-uart zmk-usb-logging equinox-cdc"
 ```
@@ -96,6 +96,56 @@ Actionsの実行と`GITHUB_TOKEN`によるcontents/Issuesへの書き込みを�
 | 静的テスト | 4件成功：キー数・US/JIS差分・キースキャンピン・Layout Shift |
 | センサー方向・連続動作・BLE・CDC復帰 | 実機未確認 |
 
+## PAT高分解能ダイヤル
+
+`sekigon-gonnoc/zmk-driver-hires-dial`をrevision
+`353a21964a2f6df1de128ca6e71ec63518729ab7`に固定して使用します。
+従来のXYカーソル入力を置き換え、PATのY軸を次のように使います。
+
+| レイヤー | PATの動作 |
+| --- | --- |
+| 0（通常）・2・3・4 | 縦スクロール（10カウントでホイール1） |
+| 1（Fn） | Windows Radial Controller（回転比1:1） |
+| 5（Dial、長押しで移行） | Windows Radial Controller。Fnを離しても維持 |
+
+US/JIS共通。右TBの方向補正・Fn時スクロールとLayout Shiftは維持します。
+Fn＋Enterをダイヤル押下に割り当てています。通常レイヤーのEnterは維持します。
+Fnを保持してEnterを長押しするとWindowsの円形メニューを開く操作になります。
+ダイヤル押下・回転によるメニュー操作は実機確認が必要です。
+さらにFnレイヤー最下段の最初のEnter（通常レイヤーでは左親指Space）を、
+短押しEnter／長押しダイヤル押下にしています。隣のEnter 2つは変更しません。
+200 msで長押しを確定し、その後Windows側の長押し判定で円形メニューが開きます。
+長押し中はダイヤルボタンを保持し、キーを離すと解除します。短押し時はEnterだけを送ります。
+現行版では長押し開始でDialレイヤー5を有効にし、キーやFnを離しても維持します。
+メニュー表示後は手を離してPATで選択できます。親指の同じキー、またはEnterを
+短押しするとダイヤルのクリックを送り、選択後もPATで選んだ機能を操作できます。
+Dial中の同じキーを400 ms長押し、またはEscでDialレイヤーを解除し、通常操作へ戻ります。
+Fnをまだ保持している間はレイヤー1の設定が有効です。終了時はFnも離してください。
+この保持モードは`just.sh`で左右US/JISの4構成ビルド成功、静的テスト14件成功。
+ログ：`build-parallel-20261002-091332`。左手の接続を検出できず未書き込みです。
+メニューと選択の実機確認が必要です。
+この親指キー追加版は`just.sh`で左右US/JISの4構成ビルド成功、静的テスト13件成功。
+ログ：`build-parallel-20261002-083607`。2026-10-02、CDC 1200 baudから左手を
+ブートローダーへ移行し、Hドライブへ左US版を書き込みました。
+CDC復帰とPATの`ready=1 init_res=0 id=31:91`を確認済み。
+親指キーの短押し・長押しと円形メニュー操作の実機確認は保留です。
+`res-cpi=1275`、`counts-per-revolution=1275`は上流の参考初期値であり、
+実際のダイヤル1回転に合わせた校正と、方向・速度の実機確認が必要です。
+I²C 0x79、ID_SEL高インピーダンス、MOTION=P1.12は維持しています。
+
+固定中のcormoran ZMKとの互換性のため、EquinoxのCMakeでZMKヘッダ参照と
+`zmk_endpoints_selected`→`zmk_endpoint_get_selected`のAPI名対応を追加しています。
+上流モジュール自体は変更していません。
+Radial Controllerの追加HID用に未使用の標準CDCだけ無効化しています。
+Studio CDCとデバッグ/1200 baud起動CDCは維持しますが、COM番号は変わる可能性があります。
+BLEではHID構成変更により再ペアリングが必要になる場合があります。
+移行版は実機でPAT初期化成功とWindowsの多軸コントローラ認識を確認し、
+ユーザーから通常スクロール動作OKの報告を得ています。
+Fn＋Enter追加版は`just.sh`で左右US/JISの4構成ビルド成功、静的テスト12件成功。
+2026-10-02に左US版をHドライブ経由で書き込み、CDCでhires dialの初期化成功と
+`ready=1 init_res=0 id=31:91`を確認しました。円形メニューと回転の操作確認は保留です。
+ビルドログ：`build-parallel-20261002-082735`。
+
 ## CDCデバッグログ
 
 右手は`CONFIG_EQUINOX_PMW_DIAGNOSTICS=y`で、PMWの非同期初期化状態・
@@ -104,7 +154,9 @@ Actionsの実行と`GITHUB_TOKEN`によるcontents/Issuesへの書き込みを�
 書き込み後、CDCで`ready=1 init_error=0 split_connected=1`を確認しました。
 続いて左Centralで右TBのY軸だけを反転し、左USをビルド・書き込みしました
 （`build-parallel-20261002-075413`）。ユーザーから方向OKの確認済みです。
-最新のピン設定・Y反転を含むJIS版のビルドと実機確認、長時間動作は未確認です。
+後続のhires-dial移行時に左右US/JISの4構成ビルドは成功しました。
+さらに基板180度回転に合わせ、右TB補正をY反転からX反転へ変更しています。
+この後続変更の書き込み・実機確認と、長時間動作は未確認です。
 
 ### PAT初期化の切り分け（2026-10-02）
 

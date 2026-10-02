@@ -7,10 +7,10 @@ manifest:
     - name: te9no
       url-base: https://github.com/te9no
   projects:
-    - name: zmk-driver-pat9125
-      url: https://github.com/taichan1113/zmk-driver-pat9125
-      revision: 17395b89a85b8d4fccbff5d4b53cd39cc3a88961
-      path: modules/zmk-driver-pat9125
+    - name: zmk-driver-hires-dial
+      url: https://github.com/sekigon-gonnoc/zmk-driver-hires-dial
+      revision: 353a21964a2f6df1de128ca6e71ec63518729ab7
+      path: modules/zmk-driver-hires-dial
     - name: zmk-driver-animation
       remote: cormoran
       revision: fa0479ec3b2fe04a96d9244e620d3c5dd2cfb280

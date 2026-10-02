@@ -19,7 +19,7 @@ class EquinoxConfigTest(unittest.TestCase):
                 self.assertEqual(overlay.count('&key_physical_attrs'), count)
                 keymap = (ROOT / f'config/GeaconEquinox_{layout}.keymap').read_text()
                 bindings = re.findall(r'bindings\s*=\s*<([^>]+)>', keymap)
-                self.assertEqual(len(bindings), 5)
+                self.assertEqual(len(bindings), 6)
                 self.assertTrue(all(b.count('&') == count for b in bindings))
 
     def test_jis_adds_one_position(self):
@@ -72,9 +72,10 @@ class EquinoxConfigTest(unittest.TestCase):
         shield = ROOT / 'boards/shields/GeaconEquinox'
         conf = (shield / 'geacon_equinox_left.conf').read_text()
         overlay = (shield / 'geacon_equinox_left.overlay').read_text()
-        self.assertIn('CONFIG_PAT9125=y', conf)
+        self.assertIn('CONFIG_ZMK_HIRES_DIAL=y', conf)
+        self.assertNotIn('CONFIG_PAT9125=y', conf)
         self.assertNotIn('CONFIG_INPUT_PAT912X=y', conf)
-        self.assertIn('compatible = "pixart,pat9125"', overlay)
+        self.assertIn('compatible = "sekigon,hires-dial"', overlay)
         self.assertIn('pat9125: pat9125@79', overlay)
         self.assertIn('reg = <0x79>', overlay)
         address_hog = re.search(r'pat_address\s*\{([^}]+)', overlay).group(1)
@@ -84,6 +85,74 @@ class EquinoxConfigTest(unittest.TestCase):
         diag = (ROOT / 'src/pat_diagnostics.c').read_text()
         self.assertNotIn('device_init(pat)', diag)
         self.assertNotIn('i2c_reg_write', diag)
+
+    def test_fn_enter_dial_button_preserves_base_enter(self):
+        for layout in ('US', 'JIS'):
+            text = (ROOT / f'config/GeaconEquinox_{layout}.keymap').read_text()
+            base = re.search(r'default_layer\s*\{.*?bindings\s*=\s*<([^>]+)>', text, re.S).group(1)
+            fn = re.search(r'function_layer\s*\{.*?bindings\s*=\s*<([^>]+)>', text, re.S).group(1)
+            base_bindings = [b.strip() for b in re.findall(r'&\w+[^&]*', base)]
+            fn_bindings = [b.strip() for b in re.findall(r'&\w+[^&]*', fn)]
+            enter_binding = '&kp ENTER' if layout == 'US' else '&lt 4 ENTER'
+            enter_position = base_bindings.index(enter_binding)
+            self.assertEqual(fn_bindings[enter_position], '&dial_open')
+            self.assertEqual(text.count('&dial_open'), 1)
+
+    def test_dial_layer_routing_and_tb_isolation(self):
+        shield = ROOT / 'boards/shields/GeaconEquinox'
+        dial = (ROOT / 'config/equinox_dial.dtsi').read_text()
+        self.assertIn('#if defined(EQUINOX_HAS_DIAL)', dial)
+        self.assertIn('device = <&hires_dial_scroll>', dial)
+        self.assertIn('&{/keymap/function_layer} { sensor-bindings = <&hires_dial_radial_controller 1 1>; };', dial)
+        for layer in ('default', 'mouse', 'scroll', 'bt'):
+            self.assertIn(f'&{{/keymap/{layer}_layer}} {{ sensor-bindings = <&hires_dial_scroll 10 1>; }};', dial)
+        for layout in ('US', 'JIS'):
+            keymap = (ROOT / f'config/GeaconEquinox_{layout}.keymap').read_text()
+            self.assertTrue(keymap.rstrip().endswith('#include "equinox_dial.dtsi"'))
+        overlay = (shield / 'geacon_equinox_left.overlay').read_text()
+        self.assertNotIn('pat_listener', overlay)
+        self.assertIn('device = <&right_tb_split>', overlay)
+        self.assertEqual(overlay.count('INPUT_TRANSFORM_X_INVERT'), 2)
+        self.assertNotIn('INPUT_TRANSFORM_Y_INVERT', overlay)
+        self.assertIn('&board_cdc_acm_uart { status = "disabled"; };', overlay)
+        self.assertNotIn('&snippet_studio_rpc_usb_uart { status = "disabled";', overlay)
+        conf = (shield / 'geacon_equinox_left.conf').read_text()
+        self.assertIn('CONFIG_ZMK_HIRES_DIAL_RADIAL_CONTROLLER=y', conf)
+        self.assertIn('CONFIG_ZMK_HIRES_DIAL_SCROLL=y', conf)
+
+    def test_first_fn_thumb_enter_tap_hold(self):
+        dial = (ROOT / 'config/equinox_dial.dtsi').read_text()
+        self.assertIn('flavor = "tap-preferred";', dial)
+        self.assertIn('tapping-term-ms = <200>;', dial)
+        self.assertIn('bindings = <&dial_open>, <&kp>;', dial)
+        self.assertNotIn('hold-while-undecided', dial)
+        for layout in ('US', 'JIS'):
+            text = (ROOT / f'config/GeaconEquinox_{layout}.keymap').read_text()
+            base = re.search(r'default_layer\s*\{.*?bindings\s*=\s*<([^>]+)>', text, re.S).group(1)
+            fn = re.search(r'function_layer\s*\{.*?bindings\s*=\s*<([^>]+)>', text, re.S).group(1)
+            base_bindings = [b.strip() for b in re.findall(r'&\w+[^&]*', base)]
+            fn_bindings = [b.strip() for b in re.findall(r'&\w+[^&]*', fn)]
+            thumb_space = base_bindings.index('&kp SPACE')
+            self.assertEqual(fn_bindings[thumb_space], '&dial_enter 0 ENTER')
+            self.assertEqual(fn_bindings[thumb_space + 1:thumb_space + 3], ['&kp ENTER', '&kp ENTER'])
+            self.assertEqual(text.count('&dial_enter'), 1)
+
+    def test_dial_mode_survives_fn_release_and_has_exit(self):
+        dial = (ROOT / 'config/equinox_dial.dtsi').read_text()
+        self.assertIn('#define EQUINOX_DIAL_LAYER 5', dial)
+        self.assertIn('&{/keymap/dial_layer} { sensor-bindings = <&hires_dial_radial_controller 1 1>; };', dial)
+        opening = re.search(r'dial_open: dial_open\s*\{([^}]+)', dial).group(1)
+        self.assertIn('&macro_press &mo EQUINOX_DIAL_LAYER', opening)
+        self.assertIn('&macro_pause_for_release', opening)
+        self.assertNotIn('&macro_release &mo', opening)
+        cancel = re.search(r'dial_cancel: dial_cancel\s*\{([^}]+)', dial).group(1)
+        self.assertIn('&macro_release &hires_dial_radial_controller_button', cancel)
+        self.assertIn('&macro_release &mo EQUINOX_DIAL_LAYER', cancel)
+        for layout in ('US', 'JIS'):
+            text = (ROOT / f'config/GeaconEquinox_{layout}.keymap').read_text()
+            self.assertEqual(re.findall(r'^\s*(\w+_layer)\s*\{', text, re.M)[5], 'dial_layer')
+            self.assertEqual(text.count('&dial_select 0 0'), 2)
+            self.assertEqual(text.count('&dial_cancel'), 1)
 
 
 if __name__ == '__main__':

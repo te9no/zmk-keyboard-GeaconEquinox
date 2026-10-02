@@ -52,7 +52,7 @@ GeaconEquinoxは、[GeaconSolstice](https://github.com/te9no/zmk-config-GeaconSo
 ## Anatomy | ふたつの感覚
 
 **Left — 光を読む。**<br>
-PAT9125ELによる光学入力。左手はキー入力とポインティングを受け持ち、
+PAT9125ELによる光学ダイヤル。通常はスクロール、レイヤー1ではダイヤルコントローラとして働き、
 Centralとして両手の信号をPCへ届ける。
 
 **Right — 軌道を描く。**<br>
@@ -146,7 +146,8 @@ Fn＋TabでLayout Shiftを切り替える。US/JISどちらの構成にも備え
 - **[badjeff](https://github.com/badjeff)** — [PMW3610ドライバ](https://github.com/badjeff/zmk-pmw3610-driver)。[cormoranの従来ドライバ](https://github.com/cormoran/zmk-pmw3610-driver)のフォーク元として、現在の実装を支える基礎に。
 - **[ufan](https://github.com/ufan)** — [ZMK PixArtセンサードライバ](https://github.com/ufan/zmk/tree/support-trackpad)。PMW3610ドライバのREADMEで先行実装として挙げられている仕事に。
 - **[inorichi](https://github.com/inorichi)** — [PMW3610ドライバ](https://github.com/inorichi/zmk-pmw3610-driver)。同じく、その実装の土台となった仕事に。
-- **[taichan1113](https://github.com/taichan1113)** — TBENCと同じ系譜の[PAT9125ドライバ](https://github.com/taichan1113/zmk-driver-pat9125)。Equinoxの左手に採用した、光学入力とレポート周期制御の実装に。
+- **[sekigon-gonnoc](https://github.com/sekigon-gonnoc)** — [高分解能ダイヤルドライバ](https://github.com/sekigon-gonnoc/zmk-driver-hires-dial)。PAT9125ELによるスクロールとRadial Controllerの実装に。
+- **[taichan1113](https://github.com/taichan1113)** — TBENCと同じ系譜の[PAT9125ドライバ](https://github.com/taichan1113/zmk-driver-pat9125)。初期立ち上げで使用した光学入力の実装に。
 - **Zephyrの入力ドライバ開発者の皆さん** — PMW3610実装の参考となった[Zephyrドライバ](https://github.com/zephyrproject-rtos/zephyr/blob/main/drivers/input/input_pmw3610.c)、そして採用PAT9125ドライバの基礎となる[PAT912xドライバ](https://github.com/zephyrproject-rtos/zephyr/blob/main/drivers/input/input_pat912x.c)に。PAT912xソースにはGoogle LLCの著作権表記があります。
 
 ### 両手を支える基盤
