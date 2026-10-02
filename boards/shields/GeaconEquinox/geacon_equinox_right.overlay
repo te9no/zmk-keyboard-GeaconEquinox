@@ -4,9 +4,10 @@
         compatible = "te9no,spi-three-wire-gpio";
         #address-cells = <1>;
         #size-cells = <0>;
-        /* Shared module: J5 1=CS, 2=MOTION, 3=SDIO, 4=SCLK. */
-        sck-gpios = <&gpio0 3 GPIO_ACTIVE_HIGH>;
-        sdio-gpios = <&gpio0 4 GPIO_ACTIVE_HIGH>;
+        /* Hardware-tested wiring: J5 1=CS, 2=SCLK, 4=SDIO, 3=MOTION.
+         * Equinox: AD_X1=P0.03 (SDIO), AD_Y1=P0.04 (MOTION). */
+        sck-gpios = <&gpio1 12 GPIO_ACTIVE_HIGH>;
+        sdio-gpios = <&gpio0 3 GPIO_ACTIVE_HIGH>;
         cs-gpios = <&gpio1 11 GPIO_ACTIVE_LOW>;
         turnaround-delay-us = <4>;
         select-delay-us = <1>;
@@ -16,7 +17,7 @@
             compatible = "cormoran,pmw3610";
             reg = <0>;
             spi-max-frequency = <1500000>;
-            irq-gpios = <&gpio1 12 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+            irq-gpios = <&gpio0 4 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
             cpi = <800>;
             evt-type = <INPUT_EV_REL>;
             x-input-code = <INPUT_REL_X>;

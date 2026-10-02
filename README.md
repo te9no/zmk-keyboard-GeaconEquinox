@@ -101,6 +101,8 @@ Fn＋TabでLayout Shiftを切り替える。US/JISどちらの構成にも備え
 
 ### 指先に届く仕組み
 
+- **[cormoran](https://github.com/cormoran)** — [LED Animation](https://github.com/cormoran/zmk-driver-animation)と[Ext Power Transient](https://github.com/cormoran/zmk-driver-ext-power-transient)。光で状態を伝え、必要なときに電源を届ける仕組みに。LED構成は[SparAkashaAnanta](https://github.com/te9no/zmk-config-SparAkashaAnanta)を参照しています。
+- **[caksoylar](https://github.com/caksoylar)** — [RGB LED Widget](https://github.com/caksoylar/zmk-rgbled-widget)。XIAO内蔵の小さな光に、電池・接続・レイヤーの状態を託す仕組みに。
 - **[cormoran](https://github.com/cormoran)** — 採用している[ZMKフォーク](https://github.com/cormoran/zmk)と、[Custom Studio RPC対応PMW3610ドライバ](https://github.com/cormoran/zmk-driver-pmw3610-with-custom-studio-rpc)。光学入力と、その内部を観測する仕組みを提供してくださったことに。
 - **[kot149](https://github.com/kot149)** — [Layout Shift](https://github.com/kot149/zmk-layout-shift)。OS配列とキーコードの違いを橋渡しし、使い慣れた操作を保つ仕組みに。
 - **[sekigon-gonnoc](https://github.com/sekigon-gonnoc)** — [CDC ACM Bootloader Triggerの原流](https://github.com/sekigon-gonnoc/zmk-feature-cdc-acm-bootloader-trigger)。USBシリアルから書き込みモードへ移る仕組みに。Equinoxでは[cormoran版](https://github.com/cormoran/zmk-feature-cdc-acm-bootloader-trigger)を経た[te9no版](https://github.com/te9no/zmk-feature-cdc-acm-bootloader-trigger)を使用しています。
@@ -112,7 +114,8 @@ Fn＋TabでLayout Shiftを切り替える。US/JISどちらの構成にも備え
 - **[badjeff](https://github.com/badjeff)** — [PMW3610ドライバ](https://github.com/badjeff/zmk-pmw3610-driver)。[cormoranの従来ドライバ](https://github.com/cormoran/zmk-pmw3610-driver)のフォーク元として、現在の実装を支える基礎に。
 - **[ufan](https://github.com/ufan)** — [ZMK PixArtセンサードライバ](https://github.com/ufan/zmk/tree/support-trackpad)。PMW3610ドライバのREADMEで先行実装として挙げられている仕事に。
 - **[inorichi](https://github.com/inorichi)** — [PMW3610ドライバ](https://github.com/inorichi/zmk-pmw3610-driver)。同じく、その実装の土台となった仕事に。
-- **Zephyrの入力ドライバ開発者の皆さん** — PMW3610実装の参考となった[Zephyrドライバ](https://github.com/zephyrproject-rtos/zephyr/blob/main/drivers/input/input_pmw3610.c)、そして左手で直接利用する[PAT912xドライバ](https://github.com/zephyrproject-rtos/zephyr/blob/main/drivers/input/input_pat912x.c)に。PAT912xソースにはGoogle LLCの著作権表記があります。
+- **[taichan1113](https://github.com/taichan1113)** — TBENCと同じ系譜の[PAT9125ドライバ](https://github.com/taichan1113/zmk-driver-pat9125)。Equinoxの左手に採用した、光学入力とレポート周期制御の実装に。
+- **Zephyrの入力ドライバ開発者の皆さん** — PMW3610実装の参考となった[Zephyrドライバ](https://github.com/zephyrproject-rtos/zephyr/blob/main/drivers/input/input_pmw3610.c)、そして採用PAT9125ドライバの基礎となる[PAT912xドライバ](https://github.com/zephyrproject-rtos/zephyr/blob/main/drivers/input/input_pat912x.c)に。PAT912xソースにはGoogle LLCの著作権表記があります。
 
 ### 両手を支える基盤
 

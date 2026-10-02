@@ -43,6 +43,48 @@ class EquinoxConfigTest(unittest.TestCase):
                                ('1', '1'), ('0', '9'), ('0', '10'),
                                ('1', '3'), ('1', '5')])
 
+    def test_led_wiring_and_exclusive_power_owner(self):
+        shield = ROOT / 'boards/shields/GeaconEquinox'
+        led = (shield / 'GeaconEquinox_led.dtsi').read_text()
+        common = (shield / 'GeaconEquinox.dtsi').read_text()
+        self.assertIn('#include "GeaconEquinox_led.dtsi"', common)
+        self.assertNotIn('led_power_off', common)
+        self.assertIn('control-gpios = <&gpio1 13 GPIO_ACTIVE_LOW>', led)
+        self.assertEqual(led.count('NRF_PSEL(SPIM_MOSI, 0, 29)'), 2)
+        self.assertIn('chain-length = <4>', led)
+        self.assertIn('battery-animations = <&empty_animation>', led)
+        for side in ('left', 'right'):
+            conf = (shield / f'geacon_equinox_{side}.conf').read_text()
+            self.assertIn('CONFIG_ZMK_ANIMATION=y', conf)
+            self.assertIn('CONFIG_RGBLED_WIDGET=y', conf)
+
+    def test_cdc_debug_configuration(self):
+        conf = (ROOT / 'snippets/equinox-cdc/equinox-cdc.conf').read_text()
+        for setting in ('CONFIG_ZMK_USB_LOGGING=y', 'CONFIG_ZMK_LOG_LEVEL_DBG=y',
+                        'CONFIG_LOG_MODE_DEFERRED=y', 'CONFIG_LOG_BUFFER_SIZE=8192',
+                        'CONFIG_USB_CDC_ACM_LOG_LEVEL_OFF=y', 'CONFIG_USB_DRIVER_LOG_LEVEL_OFF=y'):
+            self.assertIn(setting, conf)
+        right = (ROOT / 'boards/shields/GeaconEquinox/geacon_equinox_right.conf').read_text()
+        self.assertIn('CONFIG_PMW3610_LOG_LEVEL_DBG=y', right)
+        self.assertIn('CONFIG_SPI_THREE_WIRE_GPIO_LOG_LEVEL_DBG=y', right)
+
+    def test_pat_reference_driver_and_read_only_diagnostics(self):
+        shield = ROOT / 'boards/shields/GeaconEquinox'
+        conf = (shield / 'geacon_equinox_left.conf').read_text()
+        overlay = (shield / 'geacon_equinox_left.overlay').read_text()
+        self.assertIn('CONFIG_PAT9125=y', conf)
+        self.assertNotIn('CONFIG_INPUT_PAT912X=y', conf)
+        self.assertIn('compatible = "pixart,pat9125"', overlay)
+        self.assertIn('pat9125: pat9125@79', overlay)
+        self.assertIn('reg = <0x79>', overlay)
+        address_hog = re.search(r'pat_address\s*\{([^}]+)', overlay).group(1)
+        self.assertIn('input;', address_hog)
+        self.assertNotIn('output-low;', address_hog)
+        self.assertNotIn('zephyr,deferred-init', overlay)
+        diag = (ROOT / 'src/pat_diagnostics.c').read_text()
+        self.assertNotIn('device_init(pat)', diag)
+        self.assertNotIn('i2c_reg_write', diag)
+
 
 if __name__ == '__main__':
     unittest.main()

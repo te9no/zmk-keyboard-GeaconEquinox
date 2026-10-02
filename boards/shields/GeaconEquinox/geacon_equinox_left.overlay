@@ -15,18 +15,21 @@
     right_tb_listener {
         compatible = "zmk,input-listener";
         device = <&right_tb_split>;
+        input-processors = <&zip_xy_transform INPUT_TRANSFORM_Y_INVERT>;
         scroll {
             layers = <1 3>;
-            input-processors = <&zip_xy_to_scroll_mapper>;
+            input-processors = <&zip_xy_transform INPUT_TRANSFORM_Y_INVERT>,
+                               <&zip_xy_to_scroll_mapper>;
         };
     };
 };
 &gpio1 {
     pat_address {
         gpio-hog;
-        /* NCS/ID_SEL driven low: I2C address 0x75. */
+        /* Keep ID_SEL high impedance from reset through operation.
+         * The sensor selects 0x79 before the MCU can drive this pin. */
         gpios = <11 GPIO_ACTIVE_HIGH>;
-        output-low;
+        input;
     };
 };
 &pinctrl {
@@ -47,9 +50,9 @@
     pinctrl-1 = <&pat_i2c_sleep>;
     pinctrl-names = "default", "sleep";
     clock-frequency = <100000>;
-    pat9125: pat9125@75 {
-        compatible = "pixart,pat912x";
-        reg = <0x75>;
+    pat9125: pat9125@79 {
+        compatible = "pixart,pat9125";
+        reg = <0x79>;
         motion-gpios = <&gpio1 12 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
         res-x-cpi = <300>;
         res-y-cpi = <300>;

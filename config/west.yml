@@ -7,6 +7,22 @@ manifest:
     - name: te9no
       url-base: https://github.com/te9no
   projects:
+    - name: zmk-driver-pat9125
+      url: https://github.com/taichan1113/zmk-driver-pat9125
+      revision: 17395b89a85b8d4fccbff5d4b53cd39cc3a88961
+      path: modules/zmk-driver-pat9125
+    - name: zmk-driver-animation
+      remote: cormoran
+      revision: fa0479ec3b2fe04a96d9244e620d3c5dd2cfb280
+      path: modules/zmk-driver-animation
+    - name: zmk-driver-ext-power-transient
+      remote: cormoran
+      revision: 92b00e3acb438df77c374a2f79857a8406c41bed
+      path: modules/zmk-driver-ext-power-transient
+    - name: zmk-rgbled-widget
+      url: https://github.com/caksoylar/zmk-rgbled-widget
+      revision: e6b467792a1dabef8cfa5c9fd26bfefc9c16662b
+      path: modules/zmk-rgbled-widget
     - name: zmk-layout-shift
       remote: kot149
       revision: 4d71f7cb743256ac619873dd44f510e9e9562739
