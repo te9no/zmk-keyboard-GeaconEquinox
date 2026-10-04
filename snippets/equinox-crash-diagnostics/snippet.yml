@@ -1,0 +1,3 @@
+name: equinox-crash-diagnostics
+append:
+  EXTRA_CONF_FILE: equinox-crash-diagnostics.conf

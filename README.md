@@ -71,6 +71,7 @@ Peripheralとして左手とBLEでつながる。
 **受け継がれる操作。**<br>
 Solsticeを参照した、通常・Fn・Mouse・Scroll・Bluetoothの5レイヤーに、専用のDialレイヤーを加えた構成。
 Spaceを長押しすればFnへ。ポインティングはスクロールへ姿を変える。
+↑キーは短押しで上矢印、長押しでトラックボールのカーソル移動を優先します（US/JIS共通）。
 
 **もうひとつの読み方。**<br>
 Fn＋TabでLayout Shiftを切り替える。US/JISどちらの構成にも備え、

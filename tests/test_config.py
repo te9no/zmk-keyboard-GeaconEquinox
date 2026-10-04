@@ -112,13 +112,40 @@ class EquinoxConfigTest(unittest.TestCase):
         overlay = (shield / 'geacon_equinox_left.overlay').read_text()
         self.assertNotIn('pat_listener', overlay)
         self.assertIn('device = <&right_tb_split>', overlay)
-        self.assertEqual(overlay.count('INPUT_TRANSFORM_X_INVERT'), 2)
-        self.assertNotIn('INPUT_TRANSFORM_Y_INVERT', overlay)
+        self.assertEqual(overlay.count('INPUT_TRANSFORM_X_INVERT'), 3)
+        self.assertLess(overlay.index('pointer {'), overlay.index('scroll {'))
+        self.assertIn('layers = <3>;', overlay)
+        self.assertIn('layers = <1>;', overlay)
+        self.assertNotIn('layers = <1 3>;', overlay)
+        self.assertEqual(overlay.count('INPUT_TRANSFORM_Y_INVERT'), 1)
+        scroll = re.search(r'scroll\s*\{([^}]+)', overlay).group(1)
+        self.assertIn('INPUT_TRANSFORM_Y_INVERT', scroll)
+        self.assertLess(scroll.index('INPUT_TRANSFORM_Y_INVERT'), scroll.index('zip_xy_to_scroll_mapper'))
         self.assertIn('&board_cdc_acm_uart { status = "disabled"; };', overlay)
         self.assertNotIn('&snippet_studio_rpc_usb_uart { status = "disabled";', overlay)
         conf = (shield / 'geacon_equinox_left.conf').read_text()
         self.assertIn('CONFIG_ZMK_HIRES_DIAL_RADIAL_CONTROLLER=y', conf)
         self.assertIn('CONFIG_ZMK_HIRES_DIAL_SCROLL=y', conf)
+
+    def test_dya_subsystems_and_up_pointer_override(self):
+        shield = ROOT / 'boards/shields/GeaconEquinox'
+        left = (shield / 'geacon_equinox_left.conf').read_text()
+        right = (shield / 'geacon_equinox_right.conf').read_text()
+        for option in ('RUNTIME_MACRO_STUDIO_RPC', 'RUNTIME_COMBO_STUDIO_RPC',
+                       'RUNTIME_INPUT_PROCESSOR_STUDIO_RPC', 'BLE_MANAGEMENT',
+                       'BLE_MANAGEMENT_STUDIO_RPC', 'SETTINGS_RPC_STUDIO',
+                       'DEVICE_INFO_STUDIO_RPC', 'WATCHDOG_STUDIO_RPC',
+                       'KSCAN_DIAGNOSTICS_STUDIO_RPC', 'DEVTOOL_STUDIO_RPC',
+                       'PMW3610_STUDIO_RPC'):
+            self.assertIn(f'CONFIG_ZMK_{option}=y', left)
+        for option in ('PMW3610_SPLIT_RPC_RELAY', 'KSCAN_DIAGNOSTICS', 'WATCHDOG_SPLIT_RELAY'):
+            self.assertIn(f'CONFIG_ZMK_{option}=y', right)
+        overlay = (shield / 'geacon_equinox_left.overlay').read_text()
+        self.assertIn('#include <behaviors/runtime_macro.dtsi>', overlay)
+        self.assertIn('&scroll_runtime_input_processor { scale-divisor = <1>; };', overlay)
+        for layout in ('US', 'JIS'):
+            keymap = (ROOT / f'config/GeaconEquinox_{layout}.keymap').read_text()
+            self.assertIn('&lt 3 UP', keymap)
 
     def test_first_fn_thumb_enter_tap_hold(self):
         dial = (ROOT / 'config/equinox_dial.dtsi').read_text()
@@ -153,6 +180,20 @@ class EquinoxConfigTest(unittest.TestCase):
             self.assertEqual(re.findall(r'^\s*(\w+_layer)\s*\{', text, re.M)[5], 'dial_layer')
             self.assertEqual(text.count('&dial_select 0 0'), 2)
             self.assertEqual(text.count('&dial_cancel'), 1)
+
+
+class InputStackRegression(unittest.TestCase):
+    def test_central_system_workqueue_has_studio_headroom(self):
+        conf = (ROOT / 'boards/shields/GeaconEquinox/geacon_equinox_left.conf').read_text()
+        size = re.search(r'^CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE=(\d+)$', conf, re.M)
+        self.assertIsNotNone(size)
+        self.assertGreaterEqual(int(size.group(1)), 4096)
+
+    def test_right_input_stack_has_relay_headroom(self):
+        conf = (ROOT / 'boards/shields/GeaconEquinox/geacon_equinox_right.conf').read_text()
+        size = re.search(r'^CONFIG_INPUT_THREAD_STACK_SIZE=(\d+)$', conf, re.M)
+        self.assertIsNotNone(size)
+        self.assertGreaterEqual(int(size.group(1)), 4096)
 
 
 if __name__ == '__main__':
