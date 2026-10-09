@@ -19,7 +19,7 @@ class EquinoxConfigTest(unittest.TestCase):
                 self.assertEqual(overlay.count('&key_physical_attrs'), count)
                 keymap = (ROOT / f'config/GeaconEquinox_{layout}.keymap').read_text()
                 bindings = re.findall(r'bindings\s*=\s*<([^>]+)>', keymap)
-                self.assertEqual(len(bindings), 6)
+                self.assertEqual(len(bindings), 8)
                 self.assertTrue(all(b.count('&') == count for b in bindings))
 
     def test_jis_adds_one_position(self):
@@ -179,7 +179,32 @@ class EquinoxConfigTest(unittest.TestCase):
             text = (ROOT / f'config/GeaconEquinox_{layout}.keymap').read_text()
             self.assertEqual(re.findall(r'^\s*(\w+_layer)\s*\{', text, re.M)[5], 'dial_layer')
             self.assertEqual(text.count('&dial_select 0 0'), 2)
-            self.assertEqual(text.count('&dial_cancel'), 1)
+            self.assertEqual(text.count('&dial_cancel'), 2)
+
+    def test_mac_layer_preserves_indices_and_dial_exit(self):
+        for layout in ('US', 'JIS'):
+            text = (ROOT / f'config/GeaconEquinox_{layout}.keymap').read_text()
+            names = re.findall(r'^\s*(\w+_layer)\s*\{', text, re.M)
+            self.assertEqual(names, ['default_layer', 'function_layer', 'mouse_layer',
+                                    'scroll_layer', 'bt_layer', 'dial_layer',
+                                    'mac_layer', 'mac_dial_layer'])
+            def keys(layer):
+                body = re.search(r'\b' + layer + r'\s*\{.*?bindings\s*=\s*<([^>]+)>',
+                                 text, re.S).group(1)
+                return [b.strip() for b in re.findall(r'&\w+[^&]*', body)]
+            base, fn, mac, guard = [keys(n) for n in
+                                   ('default_layer', 'function_layer', 'mac_layer', 'mac_dial_layer')]
+            ctrl = base.index('&mt LCTL ESC')
+            gui = base.index('&kp LGUI')
+            self.assertEqual(mac[ctrl], '&mt LGUI ESC')
+            self.assertEqual(mac[gui], '&kp LCTL')
+            self.assertTrue(all(k == '&trans' for i, k in enumerate(mac) if i not in (ctrl, gui)))
+            self.assertEqual(fn[base.index('&kp T')], '&tog 6')
+            self.assertEqual(guard[ctrl], '&dial_cancel')
+            self.assertTrue(all(k == '&trans' for i, k in enumerate(guard) if i != ctrl))
+            self.assertIn('if-layers = <5 6>;', text)
+            self.assertIn('then-layer = <7>;', text)
+            self.assertNotIn('sensor-bindings', text)
 
 
 class InputStackRegression(unittest.TestCase):

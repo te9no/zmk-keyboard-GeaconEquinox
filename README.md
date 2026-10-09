@@ -77,6 +77,15 @@ Spaceを長押しすればFnへ。ポインティングはスクロールへ姿�
 Fn＋TabでLayout Shiftを切り替える。US/JISどちらの構成にも備え、
 切り替えた状態は再起動後も引き継ぐ。
 
+**WindowsからMacへ。**<br>
+Fn＋TでMacレイヤーをON/OFF。Mac時はCtrl/Escキーが「長押しCommand・短押しEsc」、
+WinキーがControlになる。他のキーとFn＋TabのJIS/US切り替えはそのまま。
+OSを自動検出するものではなく、再起動後はWindows配置に戻る。
+固定のCtrl付きショートカットやStudioのマクロ内部は自動変換しない。
+既存の0〜5番レイヤーを保持し、Macは6番、Dial終了操作を守る自動補助は7番。
+Studioでキーマップを保存済みの場合は新しいFn＋Tが適用されないことがあるため、
+FncのT位置に「レイヤー6のトグル」があるか確認する。設定リセットは不要な限り行わない。
+
 [USキーマップ](config/GeaconEquinox_US.keymap) · [JISキーマップ](config/GeaconEquinox_JIS.keymap)
 
 ## Keymap | 指先の地図
@@ -90,7 +99,7 @@ Fn＋TabでLayout Shiftを切り替える。US/JISどちらの構成にも備え
 ![US — 通常レイヤー](keymap-svg/GeaconEquinox_US-base.svg)
 
 <details>
-<summary>USの全6レイヤーを見る</summary>
+<summary>USの全8レイヤー（Mac・自動補助を含む）を見る</summary>
 
 ![US — Def / Fnc / Mouse / Scr / BT / Dial](keymap-svg/GeaconEquinox_US.svg)
 
@@ -101,7 +110,7 @@ Fn＋TabでLayout Shiftを切り替える。US/JISどちらの構成にも備え
 ![JIS — 通常レイヤー](keymap-svg/GeaconEquinox_JIS-base.svg)
 
 <details>
-<summary>JISの全6レイヤーを見る</summary>
+<summary>JISの全8レイヤー（Mac・自動補助を含む）を見る</summary>
 
 ![JIS — Def / Fnc / Mouse / Scr / BT / Dial](keymap-svg/GeaconEquinox_JIS.svg)
 
