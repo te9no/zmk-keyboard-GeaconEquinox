@@ -32,3 +32,14 @@
 &xiao_i2c { status = "disabled"; };
 &spi0 { status = "disabled"; };
 &spi1 { status = "disabled"; };
+
+/* External NiMH Bat board, identical to Polaris: D0 / P0.02 / AIN0.
+ * Override XIAO's onboard LiPo divider and its switched measurement pin. */
+&vbatt {
+    io-channels = <&adc 0>;
+    /delete-property/ power-gpios;
+    output-ohms = <470000>;
+    full-ohms = <1470000>;
+    mv-to-pct-thresholds = <1100 1150 1200 1220 1240 1260 1280 1300 1320 1350 1400>;
+};
+&adc { status = "okay"; };
