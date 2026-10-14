@@ -1,5 +1,33 @@
 # Equinox PMW motion / battery validation
 
+## 2026-10-15: idle/activity recovery fix, initial hardware confirmation
+
+Right CDC COM56 (USB serial `3D61E124761EF67C`) captured activity wake at
+17:26:29, PERFORMANCE changing `0x01` to `0xf1`, followed by repeated raw
+Y deltas around -519/-520 at roughly 8 ms intervals. This localizes the
+observed output to the PMW read/decode path, not solely host HID persistence.
+It does not yet distinguish sensor state from SPI sampling corruption.
+
+The reference efog commit above writes normal-run PERFORMANCE `0x00` by
+default, unlike the pinned cormoran activity handler's forced-run upper bits.
+The keyboard-local patch now uses `0x00` for this path as a controlled
+comparison; Studio frame capture's separate forced-run procedure is unchanged.
+MOT/all-ones guards, direction, keymap, CPI and shared dependencies are unchanged.
+
+22 host tests passed. Right US built with `just.sh --profile geacon-equinox
+build geacon_equinox_right_us` and was flashed via the verified right-hand
+1200-baud trigger and matching XIAO bootloader serial. CDC confirmed ready=1,
+init_error=0 and split_connected=1; idle PERFORMANCE reads back as `0x00`.
+Follow-up CDC captured typing at uptime 103–106 seconds without the earlier
+continuous PMW deltas; sensor initialization and split connectivity remained
+healthy through 120 seconds. Asked to check idle-to-typing recurrence and normal
+ball operation, the user replied "大丈夫そう". This is initial practical
+confirmation, not a guarantee against long-duration recurrence. The precise
+sensor-internal mechanism remains unproven; the evidence supports avoiding the
+forced-run transition as the effective change on this hardware.
+Right JIS also builds successfully; JIS hardware is not separately tested.
+No upstream changes, push or release has been performed.
+
 ## 2026-10-12: candidate, hardware verification pending
 
 User reports continuous cursor movement after vibration, even after releasing

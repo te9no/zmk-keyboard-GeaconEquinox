@@ -13,6 +13,19 @@ spec.loader.exec_module(guard)
 
 
 class BatteryAndGuard(unittest.TestCase):
+    def test_normal_run_performance(self):
+        source = '''static int pmw3610_set_performance
+        uint8_t perf = value & 0x0F; // reset bit[3..0] to 0x0 (normal operation)
+        if (enabled) {
+            perf |= 0xF0; // set bit[3..0] to 0xF (force awake)
+        }
+    LOG_DBG("x/y: %d/%d", x, y);'''
+        with mock_patch.object(guard.hashlib, "sha256") as sha:
+            sha.return_value.hexdigest.return_value = guard.SOURCE_SHA256
+            result = guard.patch(source)
+        self.assertIn('uint8_t perf = 0x00;', result)
+        self.assertNotIn('perf |= 0xF0', result)
+
     def test_external_nimh_divider(self):
         dts = (ROOT / "boards/shields/GeaconEquinox/GeaconEquinox.dtsi").read_text()
         for expected in ("io-channels = <&adc 0>", "/delete-property/ power-gpios;",
