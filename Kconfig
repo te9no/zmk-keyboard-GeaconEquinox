@@ -1,3 +1,8 @@
+config EQUINOX_PAT_IDSEL_TEST
+    bool "Diagnostic: compare PAT addresses with ID_SEL input, high and low"
+    depends on I2C && GPIO && ZMK_HIRES_DIAL
+    default n
+
 config EQUINOX_PAT_DIAGNOSTICS
     bool "Equinox PAT9125 read-only diagnostics"
     depends on I2C && GPIO && ZMK_HIRES_DIAL

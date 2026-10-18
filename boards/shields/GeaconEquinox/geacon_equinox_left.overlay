@@ -32,8 +32,8 @@
 &gpio1 {
     pat_address {
         gpio-hog;
-        /* Keep ID_SEL high impedance from reset through operation.
-         * The sensor selects 0x79 before the MCU can drive this pin. */
+        /* Driver discovers the boot address, drives this pin Low, then
+         * software-resets the PAT and verifies its normalized 0x75 address. */
         gpios = <11 GPIO_ACTIVE_HIGH>;
         input;
     };
@@ -56,9 +56,9 @@
     pinctrl-1 = <&pat_i2c_sleep>;
     pinctrl-names = "default", "sleep";
     clock-frequency = <100000>;
-    pat9125: pat9125@79 {
+    pat9125: pat9125@75 {
         compatible = "sekigon,hires-dial";
-        reg = <0x79>;
+        reg = <0x75>;
         motion-gpios = <&gpio1 12 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
         res-cpi = <1275>;
         /* Initial upstream reference value; calibrate against the physical dial. */
