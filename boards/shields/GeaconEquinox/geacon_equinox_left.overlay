@@ -1,4 +1,8 @@
 #include "GeaconEquinox.dtsi"
+#include <input/processors/runtime-input-processor.dtsi>
+#include <behaviors/runtime_macro.dtsi>
+/* Preserve the previous scroll gain; Studio may tune this independently. */
+&scroll_runtime_input_processor { scale-divisor = <1>; };
 #define EQUINOX_HAS_DIAL 1
 / {
     chosen {
@@ -10,11 +14,16 @@
         compatible = "zmk,input-listener";
         device = <&right_tb_split>;
         /* Previous Y inversion + PCB rotation by 180 degrees = X inversion. */
-        input-processors = <&zip_xy_transform INPUT_TRANSFORM_X_INVERT>;
+        input-processors = <&zip_xy_transform INPUT_TRANSFORM_X_INVERT>, <&mouse_runtime_input_processor>;
+        pointer {
+            layers = <3>;
+            input-processors = <&zip_xy_transform INPUT_TRANSFORM_X_INVERT>, <&mouse_runtime_input_processor>;
+        };
         scroll {
-            layers = <1 3>;
+            layers = <1>;
             input-processors = <&zip_xy_transform INPUT_TRANSFORM_X_INVERT>,
-                               <&zip_xy_to_scroll_mapper>;
+                               <&zip_xy_transform INPUT_TRANSFORM_Y_INVERT>,
+                               <&zip_xy_to_scroll_mapper>, <&scroll_runtime_input_processor>;
         };
     };
 };
@@ -23,8 +32,8 @@
 &gpio1 {
     pat_address {
         gpio-hog;
-        /* Keep ID_SEL high impedance from reset through operation.
-         * The sensor selects 0x79 before the MCU can drive this pin. */
+        /* Driver discovers the boot address, drives this pin Low, then
+         * software-resets the PAT and verifies its normalized 0x75 address. */
         gpios = <11 GPIO_ACTIVE_HIGH>;
         input;
     };
@@ -47,9 +56,9 @@
     pinctrl-1 = <&pat_i2c_sleep>;
     pinctrl-names = "default", "sleep";
     clock-frequency = <100000>;
-    pat9125: pat9125@79 {
+    pat9125: pat9125@75 {
         compatible = "sekigon,hires-dial";
-        reg = <0x79>;
+        reg = <0x75>;
         motion-gpios = <&gpio1 12 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
         res-cpi = <1275>;
         /* Initial upstream reference value; calibrate against the physical dial. */

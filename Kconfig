@@ -1,3 +1,8 @@
+config EQUINOX_PAT_IDSEL_TEST
+    bool "Diagnostic: compare PAT addresses with ID_SEL input, high and low"
+    depends on I2C && GPIO && ZMK_HIRES_DIAL
+    default n
+
 config EQUINOX_PAT_DIAGNOSTICS
     bool "Equinox PAT9125 read-only diagnostics"
     depends on I2C && GPIO && ZMK_HIRES_DIAL
@@ -6,4 +11,9 @@ config EQUINOX_PAT_DIAGNOSTICS
 config EQUINOX_PMW_DIAGNOSTICS
     bool "Equinox PMW3610 readiness and split connection diagnostics"
     depends on PMW3610 && ZMK_SPLIT && !ZMK_SPLIT_ROLE_CENTRAL
+    default n
+
+config EQUINOX_CRASH_DIAGNOSTICS
+    bool "Print retained watchdog incident details without clearing them"
+    depends on ZMK_WATCHDOG && (EQUINOX_PMW_DIAGNOSTICS || EQUINOX_PAT_DIAGNOSTICS)
     default n
