@@ -1,11 +1,11 @@
 {
   "artifact": {
     "name": "geacon_equinox_left_us.uf2",
-    "sha256": "da9636459ca84c34296e63ef4ff7cd17dbd2b9fd4968d95c4655b591fdeaaca9"
+    "sha256": "f9b1984ac333e6e8fa924fa4db687caeef8c415417c320d73b3206dd36813d65"
   },
   "generated": {
-    ".config": "c339b31227b24d10c15d85276bf31652da6286cb839e35549e71ff7ee4bf18f7",
-    "zephyr.dts": "6ed71db9682b85849aa4e4b79fe3075fb24d5ba849f1e96e17f490687910734c"
+    ".config": "1d380146c82db5d184782a06a5df85b6ba8e8ce26d7d7dbc5e37f61c033092c3",
+    "zephyr.dts": "ee358da777104eeecbb9f9dec913a6f11882df4c8a00465141ed635f6b37939e"
   },
   "inputs": {
     "dependencies": {
@@ -369,8 +369,68 @@
         "dirty": false,
         "untracked": {}
       },
+      "zmk-feature-custom-settings": {
+        "commit": "c6a7fef3a3be3d3ace5de9a4b0628c6418cd1f3f",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dirty": false,
+        "untracked": {}
+      },
+      "zmk-feature-device-info": {
+        "commit": "8cedd2dd9f04e19ea5a17b94914dd47a09d8db11",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dirty": false,
+        "untracked": {}
+      },
+      "zmk-feature-kscan-diagnostics": {
+        "commit": "1432f7fe0cfe903cd7d3c9931ae6bd6f2e1f328e",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dirty": false,
+        "untracked": {}
+      },
+      "zmk-feature-runtime-combo": {
+        "commit": "d9490e7b5d41c516221d131241009e81740efcee",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dirty": false,
+        "untracked": {}
+      },
+      "zmk-feature-runtime-macro": {
+        "commit": "38530962eb7061b60efcb98e84585cfb1f0cb6de",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dirty": false,
+        "untracked": {}
+      },
+      "zmk-feature-watchdog": {
+        "commit": "84ad14c6c3645dc40b23f45d08ab45418655f912",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dirty": false,
+        "untracked": {}
+      },
       "zmk-layout-shift": {
         "commit": "4d71f7cb743256ac619873dd44f510e9e9562739",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dirty": false,
+        "untracked": {}
+      },
+      "zmk-module-ble-management": {
+        "commit": "57738cc4fc6ba80e82a7ac57741a0339cb186cd4",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dirty": false,
+        "untracked": {}
+      },
+      "zmk-module-devtool": {
+        "commit": "9938a2c73c06d6e65ba2c0b68c9aa044a467eafc",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dirty": false,
+        "untracked": {}
+      },
+      "zmk-module-runtime-input-processor": {
+        "commit": "decf628d7ce5ed95b520c650824c28ea9de649c1",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dirty": false,
+        "untracked": {}
+      },
+      "zmk-module-settings-rpc": {
+        "commit": "78f86df9e6c5edaf57bef3ccbd7f360cfdf49291",
         "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "dirty": false,
         "untracked": {}
@@ -395,7 +455,7 @@
       }
     },
     "source": {
-      "commit": "9b3b91b18524b088716f51a41509513868f03eca",
+      "commit": "e2f0052be64aa9faa085f22376f3798ba9c41c57",
       "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "dirty": false,
       "untracked": {}
@@ -407,7 +467,7 @@
       "untracked": {}
     }
   },
-  "run_id": "37025601656",
+  "run_id": "39094488551",
   "schema": 1,
   "target": {
     "artifact-name": "geacon_equinox_left_us",
