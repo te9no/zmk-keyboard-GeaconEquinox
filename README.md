@@ -143,9 +143,8 @@ FncのT位置に「レイヤー6のトグル」があるか確認する。設定
 
 ### 指先に届く仕組み
 
-- **[cormoran](https://github.com/cormoran)** — [LED Animation](https://github.com/cormoran/zmk-driver-animation)と[Ext Power Transient](https://github.com/cormoran/zmk-driver-ext-power-transient)。光で状態を伝え、必要なときに電源を届ける仕組みに。LED構成は[SparAkashaAnanta](https://github.com/te9no/zmk-config-SparAkashaAnanta)を参照しています。
+- **[cormoran](https://github.com/cormoran)** — [ZMKフォーク](https://github.com/cormoran/zmk)、[Custom Studio RPC対応PMW3610ドライバ](https://github.com/cormoran/zmk-driver-pmw3610-with-custom-studio-rpc)、[LED Animation](https://github.com/cormoran/zmk-driver-animation)、[Ext Power Transient](https://github.com/cormoran/zmk-driver-ext-power-transient)。光学入力とその内部を観測する仕組みから、光で状態を伝え、必要なときに電源を届ける仕組みまで、Equinoxを広く支えてくださったことに。LED構成は[SparAkashaAnanta](https://github.com/te9no/zmk-config-SparAkashaAnanta)を参照しています。
 - **[caksoylar](https://github.com/caksoylar)** — [RGB LED Widget](https://github.com/caksoylar/zmk-rgbled-widget)。XIAO内蔵の小さな光に、電池・接続・レイヤーの状態を託す仕組みに。
-- **[cormoran](https://github.com/cormoran)** — 採用している[ZMKフォーク](https://github.com/cormoran/zmk)と、[Custom Studio RPC対応PMW3610ドライバ](https://github.com/cormoran/zmk-driver-pmw3610-with-custom-studio-rpc)。光学入力と、その内部を観測する仕組みを提供してくださったことに。
 - **[kot149](https://github.com/kot149)** — [Layout Shift](https://github.com/kot149/zmk-layout-shift)。OS配列とキーコードの違いを橋渡しし、使い慣れた操作を保つ仕組みに。
 - **[sekigon-gonnoc](https://github.com/sekigon-gonnoc)** — [CDC ACM Bootloader Triggerの原流](https://github.com/sekigon-gonnoc/zmk-feature-cdc-acm-bootloader-trigger)。USBシリアルから書き込みモードへ移る仕組みに。Equinoxでは[cormoran版](https://github.com/cormoran/zmk-feature-cdc-acm-bootloader-trigger)を経た[te9no版](https://github.com/te9no/zmk-feature-cdc-acm-bootloader-trigger)を使用しています。
 
