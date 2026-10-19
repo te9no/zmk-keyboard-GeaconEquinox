@@ -91,3 +91,25 @@
 	};
 };
 #include "../../config/GeaconEquinox_JIS.keymap"
+
+/* The JIS trackball mounting is rotated relative to the US assembly.
+ * Correct in the central listener, before runtime scaling / scroll mapping.
+ * Relative to the US output: (x, y) -> (-y, x).
+ * The US listener already inverts X, hence swap + invert both raw axes. */
+/* Kconfig symbols are not available during devicetree preprocessing.
+ * The left shield defines EQUINOX_HAS_DIAL before this snippet is included. */
+#if defined(EQUINOX_HAS_DIAL)
+&{/right_tb_listener} {
+    input-processors = <&zip_xy_transform (INPUT_TRANSFORM_XY_SWAP | INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>,
+                       <&mouse_runtime_input_processor>;
+    pointer {
+        input-processors = <&zip_xy_transform (INPUT_TRANSFORM_XY_SWAP | INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>,
+                           <&mouse_runtime_input_processor>;
+    };
+    scroll {
+        input-processors = <&zip_xy_transform (INPUT_TRANSFORM_XY_SWAP | INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>,
+                           <&zip_xy_transform INPUT_TRANSFORM_Y_INVERT>,
+                           <&zip_xy_to_scroll_mapper>, <&scroll_runtime_input_processor>;
+    };
+};
+#endif

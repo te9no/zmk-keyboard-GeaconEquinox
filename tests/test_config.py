@@ -6,6 +6,24 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class EquinoxConfigTest(unittest.TestCase):
+    def test_jis_trackball_rotation_before_pointer_and_scroll_processing(self):
+        text = (ROOT / 'snippets/equinox-jis/equinox-jis.overlay').read_text()
+        override = text.split('#if defined(EQUINOX_HAS_DIAL)')[1]
+        left = (ROOT / 'boards/shields/GeaconEquinox/geacon_equinox_left.overlay').read_text()
+        right = (ROOT / 'boards/shields/GeaconEquinox/geacon_equinox_right.overlay').read_text()
+        self.assertIn('#define EQUINOX_HAS_DIAL 1', left)
+        self.assertNotIn('#define EQUINOX_HAS_DIAL', right)
+        rotation = '(INPUT_TRANSFORM_XY_SWAP | INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)'
+        self.assertEqual(override.count(rotation), 3)
+        self.assertEqual(override.count('&mouse_runtime_input_processor'), 2)
+        self.assertIn('&zip_xy_to_scroll_mapper>, <&scroll_runtime_input_processor>', override)
+        # Observed US-transformed output: up -> left, right -> up.
+        # Undo the existing X inversion to recover raw input, then apply JIS.
+        for observed, expected in [((-1, 0), (0, -1)), ((0, -1), (1, 0)),
+                                   ((1, 0), (0, 1)), ((0, 1), (-1, 0))]:
+            raw_x, raw_y = -observed[0], observed[1]
+            self.assertEqual((-raw_y, -raw_x), expected)
+
     def test_layouts_have_unique_matrix_positions_and_matching_keymaps(self):
         for layout, count in [('US', 63), ('JIS', 64)]:
             with self.subTest(layout=layout):
