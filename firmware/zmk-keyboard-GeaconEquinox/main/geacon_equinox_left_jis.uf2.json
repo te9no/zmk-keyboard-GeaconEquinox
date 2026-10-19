@@ -1,11 +1,11 @@
 {
   "artifact": {
     "name": "geacon_equinox_left_jis.uf2",
-    "sha256": "81f382a5fbeadc77cca33971d5a51c0f12f28b3156f234f6d5e6e222d7382a1b"
+    "sha256": "e4dfe5383de006f740bdc2bdea496a4cf39c332c36d3b4bbae6d5f8ad3db7624"
   },
   "generated": {
     ".config": "1d380146c82db5d184782a06a5df85b6ba8e8ce26d7d7dbc5e37f61c033092c3",
-    "zephyr.dts": "81a40e8d5b77df7d7b8a2a5a74c6f209fae1f192226cd35172b6d02098786439"
+    "zephyr.dts": "abc4d6834367e0ca33d399ad40fe95a90fb75b9f10a59594d59b856cfaba7fca"
   },
   "inputs": {
     "dependencies": {
@@ -455,7 +455,7 @@
       }
     },
     "source": {
-      "commit": "e2f0052be64aa9faa085f22376f3798ba9c41c57",
+      "commit": "250134894cdb4cdff229cb8042b84613e79fc1a6",
       "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "dirty": false,
       "untracked": {}
@@ -467,7 +467,7 @@
       "untracked": {}
     }
   },
-  "run_id": "39094488551",
+  "run_id": "39268800434",
   "schema": 1,
   "target": {
     "artifact-name": "geacon_equinox_left_jis",
