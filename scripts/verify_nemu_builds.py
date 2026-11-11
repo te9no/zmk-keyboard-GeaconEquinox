@@ -42,6 +42,7 @@ for layout,count in [('us',63),('jis',64)]:
         assert conf['CONFIG_ZMK_NEMU_LINK_MODE_CHORD']=='y',name
         assert node('eq_layer').status == 'okay', name
         assert 'te9no,behavior-nemu-layer-led' in node('eq_layer').compats, name
+        assert conf.get('CONFIG_ZMK_NEMU_LINK_STUDIO_SOURCE')=='0',name
         mode=edt.get_node('/nemu_mode_keys')
         assert mode.props['source-0-switch-positions'].val==[1,2,3],name
         assert mode.props['source-1-switch-positions'].val==[6,7,8],name
@@ -69,7 +70,9 @@ for layout,count in [('us',63),('jis',64)]:
                 assert conf['CONFIG_ZMK_DYNAMIC_'+feature]=='y',(name,feature)
             assert (conf.get('CONFIG_NEMU_LINK_FULL_SCAN')=='y')==(side=='dongle'),name
             assert (conf.get('CONFIG_ZMK_DYNAMIC_BLE_PROFILE')=='y')==(side=='left'),name
-            assert conf.get('CONFIG_ZMK_NEMU_LINK_STUDIO_ENDPOINT')!='y',name
+            assert conf.get('CONFIG_ZMK_NEMU_LINK_STUDIO_ENDPOINT')=='y',name
+            assert conf.get('CONFIG_ZMK_NEMU_LINK_STUDIO_SYNC')=='y',name
+            assert conf.get('CONFIG_ZMK_NEMU_LINK_STUDIO_SHARED_SETTINGS')=='y',name
             schema_path=build.parent/'modules/zmk-feature-dynamic-settings/generated/settings-schema.json'
             groups=json.loads(schema_path.read_text())['groups']
             for module in ['combo', 'macro', 'tap-dance']:
