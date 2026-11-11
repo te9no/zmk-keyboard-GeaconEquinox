@@ -1,0 +1,35 @@
+#define EQUINOX_NEMU_LINK 1
+#define EQUINOX_NEMU_RECEIVER 1
+#include <input_processors/zmk-input-processor-pointer-settings.dtsi>
+#define EQUINOX_HAS_DIAL 1
+#define EQUINOX_MOUSE_PROCESSOR &zip_xy_scaler 1 1
+#define EQUINOX_SCROLL_PROCESSOR &zip_scroll_scaler 1 1
+#include <input/processors.dtsi>
+#include <dt-bindings/zmk/input_transform.h>
+#include "radio.dtsi"
+/ {
+    pat9125: dial_remote { compatible = "sekigon,remote-hires-dial"; counts-per-revolution = <1275>; };
+    split_inputs {
+        #address-cells = <1>;
+        #size-cells = <0>;
+        right_tb_split: trackball@0 { compatible = "zmk,input-split"; reg = <0>; };
+    };
+    right_tb_listener {
+        compatible = "zmk,input-listener";
+        device = <&right_tb_split>;
+        input-processors = <&zip_xy_transform INPUT_TRANSFORM_X_INVERT>, <&nemu_pointer>;
+    };
+    nemu_pointer: pointer {
+        compatible = "zmk,input-processor-pointer";
+        #input-processor-cells = <0>;
+        shift-point-0 = <0>;
+        shift-rate-0 = <100>;
+        shift-rate-1 = <100>;
+        shift-rate-2 = <100>;
+        scroll-layers = <2>;
+        scroll-divisor = <1>;
+        aml-layer = <2>;
+    };
+    DYNAMIC_INPUT_PROCESSOR_POINTER_SETTINGS(nemu_pointer_settings,
+        "equinox-trackball", "dongle", "Equinox trackball", nemu_pointer, "owner")
+};

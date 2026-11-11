@@ -1,0 +1,7 @@
+#define EQUINOX_NEMU_LINK 1
+#include "../GeaconEquinox/geacon_equinox_left.overlay"
+#include "radio.dtsi"
+#include "xiao.dtsi"
+/* Only the receiver consumes the right-hand input stream. */
+&right_tb_split { status = "disabled"; };
+&{/right_tb_listener} { status = "disabled"; };

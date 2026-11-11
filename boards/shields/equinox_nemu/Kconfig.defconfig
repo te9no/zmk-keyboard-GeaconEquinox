@@ -1,0 +1,9 @@
+if SHIELD_EQUINOX_NEMU_LEFT || SHIELD_EQUINOX_NEMU_RIGHT || SHIELD_EQUINOX_NEMU_DONGLE
+config ZMK_KEYBOARD_NAME
+    default "Equinox nemu"
+config ZMK_SPLIT
+    default y
+config ZMK_SPLIT_ROLE_CENTRAL
+    default y if SHIELD_EQUINOX_NEMU_DONGLE
+    default n
+endif

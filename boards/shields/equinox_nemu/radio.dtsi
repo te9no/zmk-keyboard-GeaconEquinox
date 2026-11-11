@@ -1,0 +1,2 @@
+#include <behaviors/nemu_link.dtsi>
+/ { nemu_link_split { compatible = "sekigon,nemu-link-radio"; }; };

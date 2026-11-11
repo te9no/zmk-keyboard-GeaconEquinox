@@ -1,8 +1,15 @@
 #include "GeaconEquinox.dtsi"
+#ifndef EQUINOX_NEMU_LINK
 #include <input/processors/runtime-input-processor.dtsi>
 #include <behaviors/runtime_macro.dtsi>
 /* Preserve the previous scroll gain; Studio may tune this independently. */
 &scroll_runtime_input_processor { scale-divisor = <1>; };
+#define EQUINOX_MOUSE_PROCESSOR &mouse_runtime_input_processor
+#define EQUINOX_SCROLL_PROCESSOR &scroll_runtime_input_processor
+#else
+#define EQUINOX_MOUSE_PROCESSOR &zip_xy_scaler 1 1
+#define EQUINOX_SCROLL_PROCESSOR &zip_scroll_scaler 1 1
+#endif
 #define EQUINOX_HAS_DIAL 1
 / {
     chosen {
@@ -14,16 +21,16 @@
         compatible = "zmk,input-listener";
         device = <&right_tb_split>;
         /* Previous Y inversion + PCB rotation by 180 degrees = X inversion. */
-        input-processors = <&zip_xy_transform INPUT_TRANSFORM_X_INVERT>, <&mouse_runtime_input_processor>;
+        input-processors = <&zip_xy_transform INPUT_TRANSFORM_X_INVERT>, <EQUINOX_MOUSE_PROCESSOR>;
         pointer {
             layers = <3>;
-            input-processors = <&zip_xy_transform INPUT_TRANSFORM_X_INVERT>, <&mouse_runtime_input_processor>;
+            input-processors = <&zip_xy_transform INPUT_TRANSFORM_X_INVERT>, <EQUINOX_MOUSE_PROCESSOR>;
         };
         scroll {
             layers = <1>;
             input-processors = <&zip_xy_transform INPUT_TRANSFORM_X_INVERT>,
                                <&zip_xy_transform INPUT_TRANSFORM_Y_INVERT>,
-                               <&zip_xy_to_scroll_mapper>, <&scroll_runtime_input_processor>;
+                               <&zip_xy_to_scroll_mapper>, <EQUINOX_SCROLL_PROCESSOR>;
         };
     };
 };

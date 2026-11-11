@@ -26,7 +26,11 @@
         kp: key_press {
             compatible = "zmk,behavior-layout-shift-key-press";
             #binding-cells = <1>;
+            #ifdef EQUINOX_NEMU_LINK
+            label = "EQUINOX_KEY_PRESS";
+#else
             label = "LAYOUT_SHIFT_KEY_PRESS";
+#endif
         };
     };
 };

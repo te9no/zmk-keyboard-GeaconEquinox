@@ -1,0 +1,111 @@
+manifest:
+  remotes:
+  - name: kot149
+    url-base: https://github.com/kot149
+  - name: cormoran
+    url-base: https://github.com/cormoran
+  - name: te9no
+    url-base: https://github.com/te9no
+  projects:
+  - name: zmk-driver-hires-dial
+    url: https://github.com/sekigon-gonnoc/zmk-driver-hires-dial
+    revision: 353a21964a2f6df1de128ca6e71ec63518729ab7
+    path: modules/zmk-driver-hires-dial
+  - name: zmk-layout-shift
+    remote: kot149
+    revision: 4d71f7cb743256ac619873dd44f510e9e9562739
+  - name: zmk-driver-pmw3610-with-custom-studio-rpc
+    remote: cormoran
+    revision: 5c34ea0eec246a1c986111417cd779b53144629a
+  - name: zmk-driver-spi-three-wire
+    remote: te9no
+    revision: 4362133dbfbf66788b66b0a3e3c410b9232c06cb
+    path: modules/zmk-driver-spi-three-wire
+  - name: zmk
+    url: https://github.com/sekigon-gonnoc/zmk
+    revision: c2db9b12bf20b8cb7e938fe414d3347ed55a21a1
+    import: app/west.yml
+  - name: zmk-feature-nemu-link
+    url: https://github.com/sekigon-gonnoc/zmk-feature-nemu-link
+    revision: 6652c0e796d14005e4c6e826e9ca66efad765c94
+    path: modules/zmk-feature-nemu-link
+    import: config/west.yml
+  - name: nrf
+    url: https://github.com/sekigon-gonnoc/sdk-nrf
+    revision: e53558a20c71f22f4eea527832896145deca0335
+  - name: zephyr
+    url: https://github.com/sekigon-gonnoc/zephyr
+    revision: 4ee88178a632be8cf77b2a018fc2fbf49a3c27ac
+    clone-depth: 1
+    import:
+      name-blocklist:
+      - acpica
+      - canopennode
+      - cmsis-nn
+      - cmsis_6
+      - chre
+      - ci-tools
+      - edtt
+      - fatfs
+      - hal_adi
+      - hal_altera
+      - hal_ambiq
+      - hal_atmel
+      - hal_cypress
+      - hal_espressif
+      - hal_ethos_u
+      - hal_gigadevice
+      - hal_infineon
+      - hal_intel
+      - hal_microchip
+      - hal_nuvoton
+      - hal_nxp
+      - hal_openisa
+      - hal_quicklogic
+      - hal_renesas
+      - hal_rpi_pico
+      - hal_silabs
+      - hal_st
+      - hal_stm32
+      - hal_tdk
+      - hal_telink
+      - hal_ti
+      - hal_wch
+      - hal_wurthelektronik
+      - hal_xtensa
+      - hostap
+      - liblc3
+      - libmctp
+      - libmetal
+      - littlefs
+      - loramac-node
+      - lz4
+      - mcuboot
+      - mcumgr
+      - mipi-sys-t
+      - net-tools
+      - nrf_hw_models
+      - nrf_wifi
+      - open-amp
+      - openthread
+      - percepio
+      - psa-arch-tests
+      - sof
+      - tf-m-tests
+      - tflite-micro
+      - thrift
+      - trusted-firmware-a
+      - trusted-firmware-m
+      - uoscore-uedhoc
+      - zephyr-lang-rust
+      - zscilib
+  - name: zmk-feature-dynamic-settings
+    url: https://github.com/sekigon-gonnoc/zmk-feature-dynamic-settings
+    revision: cf7ccd1b4d3546d64205cf5f005a9db6ea6e5980
+    path: modules/zmk-feature-dynamic-settings
+  - name: zmk-feature-dynamic-input-processor
+    url: https://github.com/sekigon-gonnoc/zmk-feature-dynamic-input-processor
+    revision: 0db4bfacd6c4c8fa5821f48ca888d93f534618d4
+    path: modules/zmk-feature-dynamic-input-processor
+  self:
+    path: config

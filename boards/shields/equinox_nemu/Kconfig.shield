@@ -1,0 +1,8 @@
+config SHIELD_EQUINOX_NEMU_LEFT
+    def_bool $(shields_list_contains,equinox_nemu_left)
+
+config SHIELD_EQUINOX_NEMU_RIGHT
+    def_bool $(shields_list_contains,equinox_nemu_right)
+
+config SHIELD_EQUINOX_NEMU_DONGLE
+    def_bool $(shields_list_contains,equinox_nemu_dongle)

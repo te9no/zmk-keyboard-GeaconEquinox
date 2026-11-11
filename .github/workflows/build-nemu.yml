@@ -1,0 +1,53 @@
+name: Build Equinox nemu-link
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'nemu/**'
+      - 'boards/**'
+      - 'snippets/**'
+      - 'config/**'
+      - 'scripts/**'
+      - 'CMakeLists.txt'
+      - 'build-nemu.yaml'
+      - '.github/workflows/build-nemu.yml'
+permissions:
+  contents: read
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      targets: ${{ steps.targets.outputs.value }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: targets
+        run: |
+          python3 -m pip install PyYAML
+          python3 -c 'import yaml,json; print("value="+json.dumps([x["artifact-name"] for x in yaml.safe_load(open("build-nemu.yaml"))["include"]]))' >> "$GITHUB_OUTPUT"
+  build:
+    needs: matrix
+    runs-on: ubuntu-latest
+    container: zmkfirmware/zmk-build-arm:stable
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(needs.matrix.outputs.targets) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare dedicated workspace
+        run: |
+          git config --global --add safe.directory '*'
+          mkdir -p /tmp/equinox-nemu
+          cp -r nemu /tmp/equinox-nemu/manifest
+          cd /tmp/equinox-nemu
+          west init -l manifest
+          west update
+          west zephyr-export
+          pip install -r zephyr/scripts/requirements.txt
+      - name: Build firmware
+        run: python3 scripts/build_nemu.py --workspace /tmp/equinox-nemu --output /tmp/firmware --target '${{ matrix.target }}'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: /tmp/firmware/*
+          if-no-files-found: error

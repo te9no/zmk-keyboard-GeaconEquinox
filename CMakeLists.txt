@@ -28,7 +28,9 @@ if(CONFIG_ZMK_HIRES_DIAL)
   # The pinned dial module uses ZMK behavior headers without exporting this path.
   zephyr_include_directories(${APPLICATION_SOURCE_DIR}/include)
   # Adapt the upstream dial API name to the pinned cormoran ZMK endpoint API.
-  zephyr_compile_definitions(zmk_endpoints_selected=zmk_endpoint_get_selected)
+  if(NOT CONFIG_ZMK_NEMU_LINK)
+    zephyr_compile_definitions(zmk_endpoints_selected=zmk_endpoint_get_selected)
+  endif()
 endif()
 
 if(CONFIG_EQUINOX_PAT_DIAGNOSTICS)
@@ -74,4 +76,10 @@ if(CONFIG_PMW3610)
     message(FATAL_ERROR "Equinox PMW source not found; refusing an unguarded build")
   endif()
   set_property(TARGET app PROPERTY SOURCES ${equinox_app_sources})
+endif()
+
+if(CONFIG_EQUINOX_NEMU_NIMH)
+  zephyr_library_named(equinox_nemu_battery)
+  zephyr_library_include_directories(include ${APPLICATION_SOURCE_DIR}/module/drivers/sensor/battery)
+  zephyr_library_sources(src/nemu_nimh.c)
 endif()

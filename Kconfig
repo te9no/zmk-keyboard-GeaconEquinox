@@ -17,3 +17,10 @@ config EQUINOX_CRASH_DIAGNOSTICS
     bool "Print retained watchdog incident details without clearing them"
     depends on ZMK_WATCHDOG && (EQUINOX_PMW_DIAGNOSTICS || EQUINOX_PAT_DIAGNOSTICS)
     default n
+
+config EQUINOX_NEMU_NIMH
+    bool
+    default y if ZMK_NEMU_LINK && DT_HAS_TE9NO_EQUINOX_NIMH_ENABLED
+    select SENSOR
+    select ADC
+    select ZMK_BATTERY

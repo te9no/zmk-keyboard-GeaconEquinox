@@ -4,7 +4,9 @@
 #include <dt-bindings/zmk/input_transform.h>
 #include <zephyr/dt-bindings/input/input-event-codes.h>
 #include <input/processors.dtsi>
+#ifndef EQUINOX_NEMU_LINK
 #include "GeaconEquinox_led.dtsi"
+#endif
 / {
     chosen { zmk,kscan = &kscan0; };
     kscan0: kscan {

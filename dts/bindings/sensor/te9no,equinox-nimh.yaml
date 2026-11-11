@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: MIT
+description: Equinox single-cell NiMH divider
+compatible: "te9no,equinox-nimh"
+include: voltage-divider.yaml
+properties:
+  mv-to-pct-thresholds:
+    type: array
+    required: true
+    description: Eleven ascending voltage thresholds, at ten percent intervals.

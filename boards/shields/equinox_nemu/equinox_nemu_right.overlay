@@ -1,0 +1,5 @@
+#define EQUINOX_NEMU_LINK 1
+#include "../GeaconEquinox/geacon_equinox_right.overlay"
+#include "radio.dtsi"
+#include "xiao.dtsi"
+/ { nemu_tb_listener { compatible = "zmk,input-listener"; device = <&trackball>; }; };
