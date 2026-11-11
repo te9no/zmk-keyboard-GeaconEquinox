@@ -1,5 +1,10 @@
 /* Receiver owns all runtime behavior settings; peripherals only send input. */
+#ifdef EQUINOX_NEMU_RECEIVER
 #include <nemu-link-full-scan.dtsi>
+#else
+#include <zmk-feature-dynamic-ble-profile.dtsi>
+&ble_profile_manager { target-role = "owner"; };
+#endif
 / {
     equinox_encoder_source: equinox_encoder_source {
         compatible = "sekigon,dynamic-encoder-source";

@@ -33,25 +33,38 @@ for layout,count in [('us',63),('jis',64)]:
         assert conf['CONFIG_ZMK_BOOTMODE_MAGIC_VALUE_BOOTLOADER_TYPE_ADAFRUIT_NRF52']=='y',name
         assert node('nemu_bootloader_trigger').props['cdc-port'].val==node('equinox_nemu_boot_uart'),name
         cdc=[n for n in edt.nodes if n.status=='okay' and 'zephyr,cdc-acm-uart' in n.compats]
-        assert len(cdc)==(2 if side=='dongle' else 1),(name,len(cdc))
-        if side=='dongle':
+        assert len(cdc)==(1 if side=='right' else 2),(name,len(cdc))
+        if side!='right':
             assert edt.chosen_node('zmk,studio-rpc-uart')!=node('equinox_nemu_boot_uart'),name
-        assert conf.get('CONFIG_ZMK_BLE')!='y',name
+        assert (conf.get('CONFIG_ZMK_BLE')=='y')==(side!='dongle'),name
+        assert conf['CONFIG_ZMK_NEMU_LINK_MODE_CHORD']=='y',name
+        mode=edt.get_node('/nemu_mode_keys')
+        assert mode.props['source-0-switch-positions'].val==[1,2,3],name
+        assert mode.props['source-1-switch-positions'].val==[6,7,8],name
+        if side!='dongle':
+            assert conf['CONFIG_ZMK_NEMU_LINK_MODE_SWITCH']=='y',name
+            assert conf['CONFIG_ZMK_NEMU_LINK_BOOT_ESB']=='y',name
+            assert conf['CONFIG_BT_LL_SW_SPLIT']=='y',name
+            assert conf['CONFIG_ZMK_SPLIT_BLE']=='y',name
+            assert conf.get('CONFIG_ZMK_NEMU_LINK_FIXED_ESB')!='y',name
         assert node('nemu_link_key_partition').regs[0].size==4096,name
         matrix=node('default_transform').props['map'].val
         assert len(matrix)==count and len(set(matrix))==count,name
+        assert all((matrix[i] & 0xff)<8 for i in [1,2,3]),name
+        assert all((matrix[i] & 0xff)>=8 for i in [6,7,8]),name
         if reference is None: reference=matrix
         assert reference==matrix,name
         assert node('default_transform').props.get('col-offset').val == (8 if side=='right' else 0),name
-        if side=='dongle':
-            assert conf.get('CONFIG_EQUINOX_NEMU_STATUS_LED')!='y',name
+        if side!='right':
+            if side=='dongle':
+                assert conf.get('CONFIG_EQUINOX_NEMU_STATUS_LED')!='y',name
             assert conf['CONFIG_ZMK_DYNAMIC_SETTINGS']=='y',name
             assert conf['CONFIG_ZMK_DYNAMIC_INPUT_PROCESSOR']=='y',name
             assert conf['CONFIG_ZMK_STUDIO']=='y',name
             for feature in ['COMBO', 'ENCODER_RUNTIME', 'MACRO', 'TAP_DANCE']:
                 assert conf['CONFIG_ZMK_DYNAMIC_'+feature]=='y',(name,feature)
-            assert conf['CONFIG_NEMU_LINK_FULL_SCAN']=='y',name
-            assert conf.get('CONFIG_ZMK_DYNAMIC_BLE_PROFILE')!='y',name
+            assert (conf.get('CONFIG_NEMU_LINK_FULL_SCAN')=='y')==(side=='dongle'),name
+            assert (conf.get('CONFIG_ZMK_DYNAMIC_BLE_PROFILE')=='y')==(side=='left'),name
             assert conf.get('CONFIG_ZMK_NEMU_LINK_STUDIO_ENDPOINT')!='y',name
             schema_path=build.parent/'modules/zmk-feature-dynamic-settings/generated/settings-schema.json'
             groups=json.loads(schema_path.read_text())['groups']
@@ -63,7 +76,11 @@ for layout,count in [('us',63),('jis',64)]:
             assert len(assignments)==len(edt.get_node('/keymap').children),name
             assert all(not g['proxy'] for g in assignments),name
             scan=[g for g in groups if g['module']=='nemu-link-scan']
-            assert len(scan)==1 and len(scan[0]['settings'])==81,name
+            if side=='dongle':
+                assert len(scan)==1 and len(scan[0]['settings'])==81,name
+            else:
+                assert not scan,name
+                assert any(g['module']=='ble' for g in groups),name
             source=node('equinox_encoder_source')
             assert source.props['sensor'].val==node('pat9125'),name
             assert source.props['input-mode'].val=='angle',name
@@ -77,7 +94,8 @@ for layout,count in [('us',63),('jis',64)]:
                 assert binding.controller==node(behavior),name
                 assert list(binding.data.values())==params,name
             assert conf['CONFIG_ZMK_SPLIT_ROLE_CENTRAL']=='y',name
-            assert 'sekigon,remote-hires-dial' in node('pat9125').compats,name
+            if side=='dongle':
+                assert 'sekigon,remote-hires-dial' in node('pat9125').compats,name
             assert 'device' not in node('right_tb_split').props,name
             processor=edt.get_node('/right_tb_listener').props['input-processors'].val
             assert processor[-1].controller==node('nemu_pointer'),name
@@ -86,13 +104,17 @@ for layout,count in [('us',63),('jis',64)]:
             assert not node('nemu_pointer').props['aml-enabled'].val,name
             assert node('nemu_pointer').props['shift-point-0'].val==0,name
             assert len(edt.get_node('/sensors').props['sensors'].val)==1,name
-        else:
+        if side!='dongle':
             assert conf['CONFIG_ZMK_NEMU_LINK_PERIPHERAL_ID']==('0' if side=='left' else '1'),name
-            assert conf.get('CONFIG_ZMK_SPLIT_ROLE_CENTRAL')!='y',name
-            for feature in ['COMBO','ENCODER_RUNTIME','MACRO','TAP_DANCE','BLE_PROFILE']:
-                assert conf.get('CONFIG_ZMK_DYNAMIC_'+feature)!='y',(name,feature)
+            assert (conf.get('CONFIG_ZMK_SPLIT_ROLE_CENTRAL')=='y')==(side=='left'),name
+            if side=='right':
+                for feature in ['COMBO','ENCODER_RUNTIME','MACRO','TAP_DANCE','BLE_PROFILE']:
+                    assert conf.get('CONFIG_ZMK_DYNAMIC_'+feature)!='y',(name,feature)
             assert conf.get('CONFIG_NEMU_LINK_FULL_SCAN')!='y',name
-            assert conf['CONFIG_ZMK_NEMU_LINK_KEY_PROVISION_USB']=='y',name
+            if side=='right':
+                assert conf['CONFIG_ZMK_NEMU_LINK_KEY_PROVISION_USB']=='y',name
+            else:
+                assert conf['CONFIG_ZMK_USB']=='y',name  # provisioning shares keyboard HID
             assert conf['CONFIG_EQUINOX_NEMU_NIMH']=='y',name
             assert conf['CONFIG_EQUINOX_NEMU_STATUS_LED']=='y',name
             assert conf['CONFIG_WS2812_STRIP_SPI']=='y',name
@@ -107,7 +129,7 @@ for layout,count in [('us',63),('jis',64)]:
             levels=node('vbatt').props['mv-to-pct-thresholds'].val
             assert len(levels)==11 and all(a<b for a,b in zip(levels,levels[1:])),name
             if side=='left':
-                assert node('right_tb_split').status=='disabled',name
+                assert node('right_tb_split').status=='okay',name
                 assert 'sekigon,hires-dial' in node('pat9125').compats,name
                 assert edt.get_node('/sensors').props['sensors'].val==[node('pat9125')],name
             else:

@@ -40,7 +40,7 @@ for row in selected:
     for snippet in row['snippet'].split():
         command += ['-S', snippet]
     command += ['--', f'-DZephyr_DIR={workspace / "zephyr/share/zephyr-package/cmake"}', f'-DZMK_CONFIG={repo / "config"}', f'-DZMK_EXTRA_MODULES={repo}', f'-DSHIELD={row["shield"]}']
-    subprocess.run(command, cwd=workspace, env={**os.environ, "ZEPHYR_BASE": str(workspace / "zephyr")}, check=True)
+    subprocess.run(command, cwd=workspace, env={**os.environ, "ZEPHYR_BASE": str(workspace / "zephyr"), "PYTHONDONTWRITEBYTECODE": "1"}, check=True)
     subprocess.run([sys.executable, str(repo/'scripts/verify_nemu_builds.py'), str(workspace), '--target', name], check=True)
     image = build / 'zephyr/zmk.uf2'
     data = image.read_bytes()

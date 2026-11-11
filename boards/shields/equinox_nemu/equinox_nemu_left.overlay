@@ -1,7 +1,27 @@
+#define EQUINOX_NEMU_BLE_CENTRAL 1
 #define EQUINOX_NEMU_LINK 1
 #include "../GeaconEquinox/geacon_equinox_left.overlay"
 #include "radio.dtsi"
 #include "xiao.dtsi"
-/* Only the receiver consumes the right-hand input stream. */
-&right_tb_split { status = "disabled"; };
-&{/right_tb_listener} { status = "disabled"; };
+#include <input_processors/zmk-input-processor-pointer-settings.dtsi>
+#include "dynamic_features.dtsi"
+/ {
+    nemu_pointer: pointer {
+        compatible = "zmk,input-processor-pointer";
+        #input-processor-cells = <0>;
+        shift-point-0 = <0>;
+        shift-rate-0 = <100>;
+        shift-rate-1 = <100>;
+        shift-rate-2 = <100>;
+        scroll-layers = <2>;
+        scroll-divisor = <1>;
+        aml-layer = <2>;
+    };
+    DYNAMIC_INPUT_PROCESSOR_POINTER_SETTINGS(nemu_pointer_settings,
+        "equinox-trackball", "dongle", "Equinox trackball", nemu_pointer, "owner")
+};
+&{/right_tb_listener} {
+    /delete-node/ pointer;
+    /delete-node/ scroll;
+    input-processors = <&zip_xy_transform INPUT_TRANSFORM_X_INVERT>, <&nemu_pointer>;
+};

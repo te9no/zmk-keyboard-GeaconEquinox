@@ -1,2 +1,9 @@
 #include <behaviors/nemu_link.dtsi>
 / { nemu_link_split { compatible = "sekigon,nemu-link-radio"; }; };
+/ {
+    nemu_mode_keys {
+        compatible = "sekigon,nemu-link";
+        source-0-switch-positions = <1 2 3>;
+        source-1-switch-positions = <6 7 8>;
+    };
+};

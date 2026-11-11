@@ -4,6 +4,6 @@ config ZMK_KEYBOARD_NAME
 config ZMK_SPLIT
     default y
 config ZMK_SPLIT_ROLE_CENTRAL
-    default y if SHIELD_EQUINOX_NEMU_DONGLE
+    default y if SHIELD_EQUINOX_NEMU_DONGLE || SHIELD_EQUINOX_NEMU_LEFT
     default n
 endif

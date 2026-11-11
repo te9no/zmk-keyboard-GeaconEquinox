@@ -98,7 +98,7 @@
  * The US listener already inverts X, hence swap + invert both raw axes. */
 /* Kconfig symbols are not available during devicetree preprocessing.
  * The left shield defines EQUINOX_HAS_DIAL before this snippet is included. */
-#if defined(EQUINOX_NEMU_RECEIVER)
+#if defined(EQUINOX_NEMU_RECEIVER) || defined(EQUINOX_NEMU_BLE_CENTRAL)
 &{/right_tb_listener} {
     input-processors = <&zip_xy_transform (INPUT_TRANSFORM_XY_SWAP | INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>, <&nemu_pointer>;
 };
