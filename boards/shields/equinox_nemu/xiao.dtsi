@@ -14,3 +14,6 @@
 };
 
 &vbatt { compatible = "te9no,equinox-nimh"; };
+
+/* Use the explicitly named bootloader CDC instead of an unused board CDC. */
+&board_cdc_acm_uart { status = "disabled"; };

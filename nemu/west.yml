@@ -107,5 +107,9 @@ manifest:
     url: https://github.com/sekigon-gonnoc/zmk-feature-dynamic-input-processor
     revision: 0db4bfacd6c4c8fa5821f48ca888d93f534618d4
     path: modules/zmk-feature-dynamic-input-processor
+  - name: zmk-feature-cdc-acm-bootloader-trigger
+    url: https://github.com/te9no/zmk-feature-cdc-acm-bootloader-trigger
+    revision: 1850754d269aab9ba73e4639371bfe59a4130e65
+    path: modules/zmk-feature-cdc-acm-bootloader-trigger
   self:
     path: config

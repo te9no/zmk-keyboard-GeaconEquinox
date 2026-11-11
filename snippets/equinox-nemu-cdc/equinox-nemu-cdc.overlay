@@ -1,0 +1,12 @@
+/ {
+    nemu_bootloader_trigger: nemu_bootloader_trigger {
+        compatible = "zmk,cdc-acm-bootloader-trigger";
+        cdc-port = <&equinox_nemu_boot_uart>;
+    };
+};
+&zephyr_udc0 {
+    equinox_nemu_boot_uart: equinox_nemu_boot_uart {
+        compatible = "zephyr,cdc-acm-uart";
+        label = "Equinox bootloader";
+    };
+};

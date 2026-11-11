@@ -26,6 +26,15 @@ for layout,count in [('us',63),('jis',64)]:
         with (build/'edt.pickle').open('rb') as f: edt=pickle.load(f)
         def node(label): return edt.label2node[label]
         assert conf['CONFIG_ZMK_NEMU_LINK']=='y',name
+        assert conf['CONFIG_ZMK_CDC_ACM_BOOTLOADER_TRIGGER']=='y',name
+        assert conf['CONFIG_UART_LINE_CTRL']=='y',name
+        assert conf['CONFIG_RETENTION_BOOT_MODE']=='y',name
+        assert conf['CONFIG_ZMK_BOOTMODE_MAGIC_VALUE_BOOTLOADER_TYPE_ADAFRUIT_NRF52']=='y',name
+        assert node('nemu_bootloader_trigger').props['cdc-port'].val==node('equinox_nemu_boot_uart'),name
+        cdc=[n for n in edt.nodes if n.status=='okay' and 'zephyr,cdc-acm-uart' in n.compats]
+        assert len(cdc)==(2 if side=='dongle' else 1),(name,len(cdc))
+        if side=='dongle':
+            assert edt.chosen_node('zmk,studio-rpc-uart')!=node('equinox_nemu_boot_uart'),name
         assert conf.get('CONFIG_ZMK_BLE')!='y',name
         assert node('nemu_link_key_partition').regs[0].size==4096,name
         matrix=node('default_transform').props['map'].val
