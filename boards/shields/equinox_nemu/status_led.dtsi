@@ -1,0 +1,30 @@
+#include <dt-bindings/led/led.h>
+/ {
+    equinox_led_power { compatible = "gpio-leds";
+        status_power: power { gpios = <&gpio1 13 GPIO_ACTIVE_LOW>; };
+    };
+};
+&pinctrl {
+    equinox_led_default: equinox_led_default {
+        group1 { psels = <NRF_PSEL(SPIM_MOSI, 0, 29)>; };
+    };
+    equinox_led_sleep: equinox_led_sleep {
+        group1 { psels = <NRF_PSEL(SPIM_MOSI, 0, 29)>; low-power-enable; };
+    };
+};
+&spi3 {
+    compatible = "nordic,nrf-spim";
+    status = "okay";
+    pinctrl-0 = <&equinox_led_default>;
+    pinctrl-1 = <&equinox_led_sleep>;
+    pinctrl-names = "default", "sleep";
+    equinox_status_strip: ws2812@0 {
+        compatible = "worldsemi,ws2812-spi";
+        reg = <0>;
+        spi-max-frequency = <4000000>;
+        chain-length = <4>;
+        spi-one-frame = <0x70>;
+        spi-zero-frame = <0x40>;
+        color-mapping = <LED_COLOR_ID_GREEN LED_COLOR_ID_RED LED_COLOR_ID_BLUE>;
+    };
+};

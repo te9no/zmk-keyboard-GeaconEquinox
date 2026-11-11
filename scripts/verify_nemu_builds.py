@@ -43,6 +43,7 @@ for layout,count in [('us',63),('jis',64)]:
         assert reference==matrix,name
         assert node('default_transform').props.get('col-offset').val == (8 if side=='right' else 0),name
         if side=='dongle':
+            assert conf.get('CONFIG_EQUINOX_NEMU_STATUS_LED')!='y',name
             assert conf['CONFIG_ZMK_DYNAMIC_SETTINGS']=='y',name
             assert conf['CONFIG_ZMK_DYNAMIC_INPUT_PROCESSOR']=='y',name
             assert conf['CONFIG_ZMK_STUDIO']=='y',name
@@ -61,6 +62,13 @@ for layout,count in [('us',63),('jis',64)]:
             assert conf.get('CONFIG_ZMK_SPLIT_ROLE_CENTRAL')!='y',name
             assert conf['CONFIG_ZMK_NEMU_LINK_KEY_PROVISION_USB']=='y',name
             assert conf['CONFIG_EQUINOX_NEMU_NIMH']=='y',name
+            assert conf['CONFIG_EQUINOX_NEMU_STATUS_LED']=='y',name
+            assert conf['CONFIG_WS2812_STRIP_SPI']=='y',name
+            assert node('equinox_status_strip').props['chain-length'].val==4,name
+            gate=node('status_power').props['gpios'].val[0]
+            assert gate.controller==node('gpio1') and gate.data['pin']==13,name
+            assert gate.data['flags'] & 1,name  # active-low power gate
+            assert not any(n.name=='led_power_off' for n in edt.nodes),name
             assert node('code_partition').regs[0].addr==0x27000,name
             assert node('code_partition').regs[0].size==0xc4000,name
             assert node('nemu_link_key_partition').regs[0].addr==0xeb000,name

@@ -24,3 +24,9 @@ config EQUINOX_NEMU_NIMH
     select SENSOR
     select ADC
     select ZMK_BATTERY
+
+config EQUINOX_NEMU_STATUS_LED
+    bool "Equinox nemu-link four LED status animation"
+    depends on ZMK_NEMU_LINK
+    default y if DT_HAS_WORLDSEMI_WS2812_SPI_ENABLED
+    select LED_STRIP

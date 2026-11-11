@@ -8,10 +8,7 @@
         };
     };
 };
-/* LED animations are not part of this receiver-based variant. Keep power off. */
-&gpio1 {
-    led_power_off { gpio-hog; gpios = <13 GPIO_ACTIVE_HIGH>; output-high; };
-};
+#include "status_led.dtsi"
 
 &vbatt { compatible = "te9no,equinox-nimh"; };
 
