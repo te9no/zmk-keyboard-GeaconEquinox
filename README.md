@@ -181,4 +181,4 @@ FncのT位置に「レイヤー6のトグル」があるか確認する。設定
 
 ## nemu-link / Dynamic Settings
 
-専用ドングルと使う独自2.4GHz版は、[nemu-link導入手順](docs/nemu-link.md)を参照してください。通常版とは別のmanifest・全6ターゲットでビルドします。実機未検証です。
+専用ドングルと使う独自2.4GHz版は、[nemu-link導入手順](docs/nemu-link.md)を参照してください。通常版とは別のmanifest・全6ターゲットでビルドします。JIS版は左右・専用ドングルの動作を確認済みです。
