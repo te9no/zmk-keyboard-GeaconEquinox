@@ -7,11 +7,30 @@ s=source.read_text()
 if hashlib.sha256(source.read_bytes()).hexdigest()!=HASHES[source.name]:
     raise SystemExit('Review nemu shared-settings adapter for changed upstream source')
 if source.name=='studio_zmk.c':
+    # Equinox keeps receiver and BLE keymaps local; only shared groups synchronize.
+    gate = '    if (ready && !dirty && !rx.started && !tx_active() && now >= next_offer) {'
+    assert s.count(gate) == 1
+    s = s.replace(gate, """    next_offer = UINT64_MAX;
+    tx.phase = NEMU_LINK_STUDIO_TX_FAILED;
+""" + gate)
+    call = """                response_pending =
+                    nemu_link_studio_stream_receive(&rx, &p, &live, nemu_link_studio_schema(), now,
+                                                    apply_record, commit_received, NULL, &response);"""
+    assert s.count(call) == 1
+    s = s.replace(call, """                response = (struct nemu_link_studio_packet){
+                    .kind = NEMU_LINK_STUDIO_ERROR, .transaction = p.transaction,
+                    .length = 2, .data = {NEMU_LINK_STUDIO_STALE, p.kind},
+                };
+                response_pending = true;""")
+    gate = 'dynamic_settings_shared_group_count() && atomic_get(&synchronized) &&'
+    assert s.count(gate) == 1
+    s = s.replace(gate, """dynamic_settings_shared_group_count() &&
+        peer_shared_contract_known && peer_shared_contract_matches &&""")
     s += """
 /* Different keymap contracts remain incompatible; this only gates mode return. */
 bool equinox_shared_settings_ready_for_ble(void) {
 #if IS_ENABLED(CONFIG_ZMK_NEMU_LINK_STUDIO_SHARED_SETTINGS)
-    return last_keymap_offer_decision == NEMU_LINK_STUDIO_INCOMPATIBLE + 1 &&
+    return peer_shared_contract_known && peer_shared_contract_matches &&
            shared_ready && shared_synchronized &&
            !atomic_get(&shared_save_pending) && !shared_tx_active() && !shared_rx_active();
 #else
