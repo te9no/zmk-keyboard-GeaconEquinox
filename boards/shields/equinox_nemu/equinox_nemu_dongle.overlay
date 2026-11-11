@@ -33,3 +33,5 @@
     DYNAMIC_INPUT_PROCESSOR_POINTER_SETTINGS(nemu_pointer_settings,
         "equinox-trackball", "dongle", "Equinox trackball", nemu_pointer, "owner")
 };
+
+#include "dynamic_features.dtsi"

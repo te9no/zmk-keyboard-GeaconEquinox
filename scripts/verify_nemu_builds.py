@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Validate the compiled DTS/config of every receiver and keyboard variant."""
 import argparse
+import json
 import pickle
 from pathlib import Path
 import sys
@@ -47,6 +48,34 @@ for layout,count in [('us',63),('jis',64)]:
             assert conf['CONFIG_ZMK_DYNAMIC_SETTINGS']=='y',name
             assert conf['CONFIG_ZMK_DYNAMIC_INPUT_PROCESSOR']=='y',name
             assert conf['CONFIG_ZMK_STUDIO']=='y',name
+            for feature in ['COMBO', 'ENCODER_RUNTIME', 'MACRO', 'TAP_DANCE']:
+                assert conf['CONFIG_ZMK_DYNAMIC_'+feature]=='y',(name,feature)
+            assert conf['CONFIG_NEMU_LINK_FULL_SCAN']=='y',name
+            assert conf.get('CONFIG_ZMK_DYNAMIC_BLE_PROFILE')!='y',name
+            assert conf.get('CONFIG_ZMK_NEMU_LINK_STUDIO_ENDPOINT')!='y',name
+            schema_path=build.parent/'modules/zmk-feature-dynamic-settings/generated/settings-schema.json'
+            groups=json.loads(schema_path.read_text())['groups']
+            for module in ['combo', 'macro', 'tap-dance']:
+                slots=[g for g in groups if g['module']==module and g['name']=='slot']
+                assert len(slots)==4,(name,module,len(slots))
+                assert all(not g['proxy'] and g['target_role']=='owner' for g in slots),name
+            assignments=[g for g in groups if g['module']=='encoder' and g['name']=='assignment']
+            assert len(assignments)==len(edt.get_node('/keymap').children),name
+            assert all(not g['proxy'] for g in assignments),name
+            scan=[g for g in groups if g['module']=='nemu-link-scan']
+            assert len(scan)==1 and len(scan[0]['settings'])==81,name
+            source=node('equinox_encoder_source')
+            assert source.props['sensor'].val==node('pat9125'),name
+            assert source.props['input-mode'].val=='angle',name
+            assert source.props['sensor-index'].val==0,name
+            # Empty runtime records must leave existing dial defaults available.
+            for layer,behavior,params in [
+                ('default_layer','hires_dial_scroll',[10,1]),
+                ('function_layer','hires_dial_radial_controller',[1,1]),
+                ('dial_layer','hires_dial_radial_controller',[1,1])]:
+                binding=edt.get_node('/keymap/'+layer).props['sensor-bindings'].val[0]
+                assert binding.controller==node(behavior),name
+                assert list(binding.data.values())==params,name
             assert conf['CONFIG_ZMK_SPLIT_ROLE_CENTRAL']=='y',name
             assert 'sekigon,remote-hires-dial' in node('pat9125').compats,name
             assert 'device' not in node('right_tb_split').props,name
@@ -60,6 +89,9 @@ for layout,count in [('us',63),('jis',64)]:
         else:
             assert conf['CONFIG_ZMK_NEMU_LINK_PERIPHERAL_ID']==('0' if side=='left' else '1'),name
             assert conf.get('CONFIG_ZMK_SPLIT_ROLE_CENTRAL')!='y',name
+            for feature in ['COMBO','ENCODER_RUNTIME','MACRO','TAP_DANCE','BLE_PROFILE']:
+                assert conf.get('CONFIG_ZMK_DYNAMIC_'+feature)!='y',(name,feature)
+            assert conf.get('CONFIG_NEMU_LINK_FULL_SCAN')!='y',name
             assert conf['CONFIG_ZMK_NEMU_LINK_KEY_PROVISION_USB']=='y',name
             assert conf['CONFIG_EQUINOX_NEMU_NIMH']=='y',name
             assert conf['CONFIG_EQUINOX_NEMU_STATUS_LED']=='y',name

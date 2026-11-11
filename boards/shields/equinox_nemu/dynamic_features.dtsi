@@ -1,0 +1,94 @@
+/* Receiver owns all runtime behavior settings; peripherals only send input. */
+#include <nemu-link-full-scan.dtsi>
+/ {
+    equinox_encoder_source: equinox_encoder_source {
+        compatible = "sekigon,dynamic-encoder-source";
+        source-name = "left-dial";
+        label = "Left optical dial";
+        sensor = <&pat9125>;
+        sensor-index = <0>;
+        input-mode = "angle";
+        target-role = "owner";
+    };
+    equinox_macro_manager: equinox_macro_manager {
+        compatible = "sekigon,dynamic-macro-manager";
+    };
+    equinox_combo_0: equinox_combo_0 {
+        compatible = "sekigon,dynamic-combo-slot";
+        slot-index = <0>;
+        target-role = "owner";
+    };
+    equinox_combo_1: equinox_combo_1 {
+        compatible = "sekigon,dynamic-combo-slot";
+        slot-index = <1>;
+        target-role = "owner";
+    };
+    equinox_combo_2: equinox_combo_2 {
+        compatible = "sekigon,dynamic-combo-slot";
+        slot-index = <2>;
+        target-role = "owner";
+    };
+    equinox_combo_3: equinox_combo_3 {
+        compatible = "sekigon,dynamic-combo-slot";
+        slot-index = <3>;
+        target-role = "owner";
+    };
+    behaviors {
+        equinox_runtime_encoder: runtime_encoder {
+            compatible = "sekigon,dynamic-behavior-runtime-encoder";
+            #binding-cells = <0>;
+        };
+        equinox_macro_0: equinox_macro_0 {
+            compatible = "sekigon,dynamic-behavior-macro";
+            #binding-cells = <0>;
+            target-role = "owner";
+            display-name = "Macro 1";
+        };
+        equinox_td_0: equinox_td_0 {
+            compatible = "sekigon,dynamic-behavior-tap-dance";
+            #binding-cells = <0>;
+            slot-index = <0>;
+            target-role = "owner";
+            display-name = "Tap Dance 1";
+        };
+        equinox_macro_1: equinox_macro_1 {
+            compatible = "sekigon,dynamic-behavior-macro";
+            #binding-cells = <0>;
+            target-role = "owner";
+            display-name = "Macro 2";
+        };
+        equinox_td_1: equinox_td_1 {
+            compatible = "sekigon,dynamic-behavior-tap-dance";
+            #binding-cells = <0>;
+            slot-index = <1>;
+            target-role = "owner";
+            display-name = "Tap Dance 2";
+        };
+        equinox_macro_2: equinox_macro_2 {
+            compatible = "sekigon,dynamic-behavior-macro";
+            #binding-cells = <0>;
+            target-role = "owner";
+            display-name = "Macro 3";
+        };
+        equinox_td_2: equinox_td_2 {
+            compatible = "sekigon,dynamic-behavior-tap-dance";
+            #binding-cells = <0>;
+            slot-index = <2>;
+            target-role = "owner";
+            display-name = "Tap Dance 3";
+        };
+        equinox_macro_3: equinox_macro_3 {
+            compatible = "sekigon,dynamic-behavior-macro";
+            #binding-cells = <0>;
+            target-role = "owner";
+            display-name = "Macro 4";
+        };
+        equinox_td_3: equinox_td_3 {
+            compatible = "sekigon,dynamic-behavior-tap-dance";
+            #binding-cells = <0>;
+            slot-index = <3>;
+            target-role = "owner";
+            display-name = "Tap Dance 4";
+        };
+    };
+};

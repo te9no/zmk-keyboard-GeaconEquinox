@@ -111,5 +111,29 @@ manifest:
     url: https://github.com/te9no/zmk-feature-cdc-acm-bootloader-trigger
     revision: 1850754d269aab9ba73e4639371bfe59a4130e65
     path: modules/zmk-feature-cdc-acm-bootloader-trigger
+  - name: zmk-feature-dynamic-combo
+    url: https://github.com/sekigon-gonnoc/zmk-feature-dynamic-combo
+    revision: dea6c29b6cbc0c3c1a193ced0b950c013ce69818
+    path: modules/zmk-feature-dynamic-combo
+  - name: zmk-feature-dynamic-encoder
+    url: https://github.com/sekigon-gonnoc/zmk-feature-dynamic-encoder
+    revision: abc4de141b6f12703ab83bc735d394873e0d427c
+    path: modules/zmk-feature-dynamic-encoder
+  - name: zmk-feature-dynamic-macro
+    url: https://github.com/sekigon-gonnoc/zmk-feature-dynamic-macro
+    revision: 826b5213025a21384695aae5af92cb709dda833e
+    path: modules/zmk-feature-dynamic-macro
+  - name: zmk-feature-dynamic-tap-dance
+    url: https://github.com/sekigon-gonnoc/zmk-feature-dynamic-tap-dance
+    revision: 5cd772f7ce3c82e80cca8c95441db69ae3154998
+    path: modules/zmk-feature-dynamic-tap-dance
+  - name: zmk-feature-dynamic-ble-profile
+    url: https://github.com/sekigon-gonnoc/zmk-feature-dynamic-ble-profile
+    revision: 9c4ebf506541a5cab79688898e14618664005c4f
+    path: modules/zmk-feature-dynamic-ble-profile
+  - name: zmk-feature-nemu-link-scan
+    url: https://github.com/sekigon-gonnoc/zmk-feature-nemu-link-scan
+    revision: 2c1d1eebaf8eb6120b4492cec09d74230e29762d
+    path: modules/zmk-feature-nemu-link-scan
   self:
     path: config

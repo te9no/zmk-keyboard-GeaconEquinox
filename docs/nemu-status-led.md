@@ -17,9 +17,7 @@ are imported and the existing radio, keymap and pointing settings are preserved.
 This first version does not display receiver layers or claim radio connectivity.
 Physical brightness/color and input coexistence still require hardware validation.
 
-Dynamic module inventory: dynamic-settings and dynamic-input-processor are
-installed. dynamic-combo, dynamic-encoder, dynamic-macro, dynamic-tap-dance,
-dynamic-ble-profile and nemu-link-scan are not installed by this change.
+Dynamic module inventory is maintained in [nemu-link.md](nemu-link.md).
 
 Validation: all six US/JIS keyboard/receiver production builds passed, including
 compiled-DTS checks for strip length, SPI driver, active-low gate and removal of
