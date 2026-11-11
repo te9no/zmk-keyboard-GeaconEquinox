@@ -5,6 +5,7 @@
 #include <zephyr/drivers/led_strip.h>
 #include <zephyr/sys/atomic.h>
 #include <zmk/activity.h>
+#include <zmk/nemu_link/control.h>
 #include <zmk/event_manager.h>
 #include <zmk/events/activity_state_changed.h>
 #include <zmk/events/battery_state_changed.h>
@@ -18,9 +19,31 @@ static atomic_t ready;
 static atomic_t active;
 static atomic_t restart;
 static atomic_t battery = -1;
+enum indicator { STARTUP, SWITCHING, MODE_BLE, MODE_NEMU, MODE_ERROR };
+static atomic_t indicator;
 static bool powered;
 static unsigned frame;
 static struct led_rgb pixels[4];
+
+/* Callbacks only publish state; the LED queue owns GPIO/SPI and animation. */
+static void show_mode(enum indicator value) {
+    atomic_set(&indicator, value);
+    atomic_set(&restart, 1);
+    if (atomic_get(&ready)) {
+        k_work_reschedule_for_queue(&queue, &work, K_NO_WAIT);
+    }
+}
+static void mode_requested(bool esb) {
+    ARG_UNUSED(esb);
+    show_mode(SWITCHING);
+}
+static void mode_changed(bool esb, int error) {
+    show_mode(error ? MODE_ERROR : esb ? MODE_NEMU : MODE_BLE);
+}
+static const struct zmk_nemu_link_observer observer = {
+    .mode_requested = mode_requested,
+    .mode_changed = mode_changed,
+};
 
 static void off(void) {
     memset(pixels, 0, sizeof(pixels));
@@ -38,15 +61,30 @@ static void tick(struct k_work *unused) {
         powered = true;
         k_msleep(1);
     }
-    /* 1.6 s softly pulsing rainbow, 1.6 s local battery, then power off. */
-    if (frame >= 80) { off(); return; }
+    enum indicator mode = atomic_get(&indicator);
+    /* Bound even a transition that never reports completion. Idle always wins.
+     * Colors report local mode, never peer connectivity or delivery. */
+    unsigned limit = mode == SWITCHING ? 200 : mode == STARTUP ? 80 : 60;
+    if (frame >= limit) { off(); return; }
     static const struct led_rgb rainbow[4] = {
         {.r=24,.g=0,.b=6}, {.r=12,.g=18,.b=0},
         {.r=0,.g=20,.b=12}, {.r=6,.g=0,.b=24}
     };
     int soc = atomic_get(&battery);
     for (int i = 0; i < 4; i++) {
-        if (frame < 40) {
+        if (mode != STARTUP) {
+            struct led_rgb color = mode == SWITCHING ? (struct led_rgb){.r=20,.g=12} :
+                                   mode == MODE_ERROR ? (struct led_rgb){.r=24} :
+                                   mode == MODE_NEMU ? (struct led_rgb){.g=24} :
+                                                       (struct led_rgb){.b=28};
+            unsigned brightness = (mode == SWITCHING || mode == MODE_ERROR)
+                                      ? ((frame / 8) % 2 ? 0 : 20)
+                                      : (frame < 10 ? frame + 1 : frame < 40 ? 10 : (60-frame)/2);
+            unsigned scale = (mode == SWITCHING || mode == MODE_ERROR) ? 20 : 10;
+            pixels[i] = (struct led_rgb){.r=color.r*brightness/scale,
+                                         .g=color.g*brightness/scale,
+                                         .b=color.b*brightness/scale};
+        } else if (frame < 40) {
             unsigned pulse = frame < 20 ? frame + 1 : 40 - frame;
             struct led_rgb c = rainbow[(i + frame / 10) % 4];
             pixels[i] = (struct led_rgb){.r=c.r*pulse/20, .g=c.g*pulse/20, .b=c.b*pulse/20};
@@ -70,7 +108,10 @@ static int event(const zmk_event_t *eh) {
     const struct zmk_activity_state_changed *a = as_zmk_activity_state_changed(eh);
     if (a && atomic_get(&ready)) {
         atomic_set(&active, a->state == ZMK_ACTIVITY_ACTIVE);
-        if (a->state == ZMK_ACTIVITY_ACTIVE) { atomic_set(&restart, 1); }
+        if (a->state == ZMK_ACTIVITY_ACTIVE) {
+            atomic_set(&indicator, STARTUP);
+            atomic_set(&restart, 1);
+        }
         k_work_reschedule_for_queue(&queue, &work, K_NO_WAIT);
     }
     return ZMK_EV_EVENT_BUBBLE;
@@ -85,10 +126,12 @@ static int init(void) {
     if (err) { return err; }
     k_work_init_delayable(&work, tick);
     k_work_queue_start(&queue, stack, K_THREAD_STACK_SIZEOF(stack), 10, NULL);
+    err = zmk_nemu_link_register_observer(&observer);
+    if (err) { return err; }
     atomic_set(&ready, 1);
     atomic_set(&active, zmk_activity_get_state() == ZMK_ACTIVITY_ACTIVE);
     atomic_set(&restart, 1);
     k_work_reschedule_for_queue(&queue, &work, K_MSEC(500));
     return 0;
 }
-SYS_INIT(init, APPLICATION, 99);
+SYS_INIT(init, APPLICATION, 98);
