@@ -40,6 +40,8 @@ for layout,count in [('us',63),('jis',64)]:
             assert edt.chosen_node('zmk,studio-rpc-uart')!=node('equinox_nemu_boot_uart'),name
         assert (conf.get('CONFIG_ZMK_BLE')=='y')==(side!='dongle'),name
         assert conf['CONFIG_ZMK_NEMU_LINK_MODE_CHORD']=='y',name
+        assert node('eq_layer').status == 'okay', name
+        assert 'te9no,behavior-nemu-layer-led' in node('eq_layer').compats, name
         mode=edt.get_node('/nemu_mode_keys')
         assert mode.props['source-0-switch-positions'].val==[1,2,3],name
         assert mode.props['source-1-switch-positions'].val==[6,7,8],name

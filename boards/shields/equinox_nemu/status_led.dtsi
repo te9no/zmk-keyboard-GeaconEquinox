@@ -24,3 +24,9 @@
         };
     };
 };
+
+/* Def, Fnc, Mouse, Scr, BT, Dial, Mac, MacDial. */
+&animation_layer_status {
+    colors = <0 HSL(193,100,47) HSL(0,100,40) HSL(0,0,100)
+              HSL(29,88,51) HSL(270,100,45) HSL(120,100,40) HSL(320,100,45)>;
+};

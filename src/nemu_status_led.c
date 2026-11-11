@@ -9,6 +9,10 @@ static struct k_work_q queue;
 K_THREAD_STACK_DEFINE(stack, 2048);
 static struct k_work work;
 static atomic_t state;
+static atomic_t protected_until;
+bool equinox_nemu_mode_led_active(void) {
+    return (int32_t)((uint32_t)atomic_get(&protected_until) - k_uptime_get_32()) > 0;
+}
 static atomic_t boot_transition = IS_ENABLED(CONFIG_ZMK_NEMU_LINK_BOOT_ESB);
 static const struct device *const animations[] = {
     DEVICE_DT_GET(DT_NODELABEL(nemu_switching_animation)),
@@ -23,6 +27,7 @@ static void display(struct k_work *unused) {
                                animations[s], true, s == 0 ? 8000 : 2400);
 }
 static void notify(unsigned s) {
+    atomic_set(&protected_until, k_uptime_get_32() + (s == 0 ? 8000 : 2400));
     atomic_set(&state, s);
     k_work_submit_to_queue(&queue, &work);
 }

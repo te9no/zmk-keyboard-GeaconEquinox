@@ -7,3 +7,5 @@
         source-1-switch-positions = <6 7 8>;
     };
 };
+
+/ { behaviors { eq_layer: eq_layer { compatible = "te9no,behavior-nemu-layer-led"; #binding-cells = <1>; }; }; };
