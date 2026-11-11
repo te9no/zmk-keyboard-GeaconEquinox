@@ -27,6 +27,8 @@ for layout,count in [('us',63),('jis',64)]:
         with (build/'edt.pickle').open('rb') as f: edt=pickle.load(f)
         def node(label): return edt.label2node[label]
         assert conf['CONFIG_ZMK_NEMU_LINK']=='y',name
+        if side=='right':
+            assert int(conf['CONFIG_INPUT_THREAD_STACK_SIZE']) >= 2048,name
         assert conf['CONFIG_ZMK_CDC_ACM_BOOTLOADER_TRIGGER']=='y',name
         assert conf['CONFIG_UART_LINE_CTRL']=='y',name
         assert conf['CONFIG_RETENTION_BOOT_MODE']=='y',name
