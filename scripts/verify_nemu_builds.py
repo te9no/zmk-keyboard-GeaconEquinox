@@ -119,9 +119,12 @@ for layout,count in [('us',63),('jis',64)]:
                 assert conf['CONFIG_ZMK_USB']=='y',name  # provisioning shares keyboard HID
             assert conf['CONFIG_EQUINOX_NEMU_NIMH']=='y',name
             assert conf['CONFIG_EQUINOX_NEMU_STATUS_LED']=='y',name
+            assert conf['CONFIG_ZMK_ANIMATION']=='y',name
+            assert conf['CONFIG_RGBLED_WIDGET']=='y',name
+            assert conf['CONFIG_ZMK_DRIVER_EXT_POWER_TRANSIENT']=='y',name
             assert conf['CONFIG_WS2812_STRIP_SPI']=='y',name
-            assert node('equinox_status_strip').props['chain-length'].val==4,name
-            gate=node('status_power').props['gpios'].val[0]
+            assert node('led_strip').props['chain-length'].val==4,name
+            gate=node('led_power').props['control-gpios'].val[0]
             assert gate.controller==node('gpio1') and gate.data['pin']==13,name
             assert gate.data['flags'] & 1,name  # active-low power gate
             assert not any(n.name=='led_power_off' for n in edt.nodes),name

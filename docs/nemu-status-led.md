@@ -1,26 +1,35 @@
-# nemu-link status LEDs
+# nemu-link LED restoration
 
-Both keyboard halves drive their own four WS2812 LEDs on SPI3/P0.29.
-P1.13 is the active-low supply gate. The former always-off GPIO hog is removed.
-The receiver has no such strip and does not enable this driver.
+The keyboard halves reuse `GeaconEquinox_led.dtsi`, including the original
+four-pixel strip, active-low P1.13 power gate, animation controller and XIAO RGB LED.
+The receiver does not enable these hardware drivers.
 
-At boot and when activity returns from idle, a 1.6-second dim rainbow animation
-is followed by 1.6 seconds of local battery indication on all four LEDs:
-blue at 65% or above, green at 25–64%, red below 25%. Amber means that no battery
-report has arrived yet. These are local readings, not the other half's battery.
-The strip then goes black and its supply is disabled. Idle also requests immediate
-shutdown; there is no permanent animation or periodic idle polling.
+- Boot: battery for 1 second, black for 0.2 seconds, endpoint for 1 second.
+- Return from idle: local battery indication for 1 second.
+- Battery colors: green/high, yellow/middle, red/low (original animation settings).
+- USB-powered operation: original endpoint and rainbow animations.
+- Battery-powered operation: original empty background animation.
+- Original animation controls and XIAO battery/connection indicators are restored.
+- Idle and inactive animation power management use the original transient power driver.
 
-SPI transfers and the one-millisecond power stabilization delay run on a dedicated
-priority-10 work queue, never in the input/event callback. No extra LED modules
-are imported and the existing radio, keymap and pointing settings are preserved.
-This first version does not display receiver layers or claim radio connectivity.
-Physical brightness/color and input coexistence still require hardware validation.
+Explicit mode switches retain yellow transition, blue BLE, green nemu-link and
+red failure indications. Completion colors indicate mode selection, not confirmed
+peer connectivity. Successful boot selection does not interrupt the boot sequence.
+The original endpoint animation and internal RGB connection indication read the
+nemu-link peripheral phase when that transport owns the radio. The status is sampled
+when each indication runs; it is not a continuously refreshed connection monitor.
 
-Dynamic module inventory is maintained in [nemu-link.md](nemu-link.md).
+Rendering runs on a dedicated priority-10 queue with a 4096-byte stack. Mode
+callbacks only enqueue their notifications. The right input stack remains 2048
+bytes. Pinned upstream LED sources are left unchanged; SHA-checked generated
+adapters provide the queue and endpoint changes during the build.
 
-Validation: all six US/JIS keyboard/receiver production builds passed, including
-compiled-DTS checks for strip length, SPI driver, active-low gate and removal of
-the competing GPIO hog. The existing 26 unit tests passed. Both JIS halves were
-flashed after matching their hardware serial numbers and reappeared as CDC and
-vendor HID devices. Visible illumination and motion remain user-confirmation items.
+Layer animation definitions are restored, but receiver-side layer changes are not
+relayed to the halves in nemu-link mode. Local BLE layer indicators retain the
+original behavior. No receiver-layer indication is claimed by this restoration.
+
+Validation: all six US/JIS production targets and their compiled configuration checks
+passed. All 26 unit tests passed.
+Both JIS halves were flashed after checking their hardware serial numbers and
+returned as CDC devices. Visible LED behavior and input coexistence have not yet
+been verified on this restored-LED build.

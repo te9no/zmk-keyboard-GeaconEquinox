@@ -157,3 +157,26 @@ if(CONFIG_ZMK_NEMU_LINK_MODE_SWITCH AND CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
   endfunction()
   cmake_language(DEFER DIRECTORY "${CMAKE_SOURCE_DIR}" CALL equinox_patch_mode_forwarding)
 endif()
+
+# Original LED modules, adapted only for this nemu-link build.
+if(CONFIG_ZMK_NEMU_LINK AND CONFIG_ZMK_ANIMATION)
+  get_target_property(led_sources app SOURCES)
+  foreach(source IN LISTS led_sources)
+    if(source MATCHES "zmk-driver-animation/src/(animation|animation_endpoint).c$" OR
+       source MATCHES "zmk-rgbled-widget/src/widget.c$")
+      get_filename_component(base "${source}" NAME)
+      set(patched "${CMAKE_CURRENT_BINARY_DIR}/equinox_${base}")
+      execute_process(COMMAND ${PYTHON_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/scripts/patch_nemu_animation.py ${source} ${patched}
+        RESULT_VARIABLE result)
+      if(NOT result EQUAL 0)
+        message(FATAL_ERROR "Original LED adapter requires review")
+      endif()
+      list(REMOVE_ITEM led_sources ${source})
+      list(APPEND led_sources ${patched})
+      set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+        ${source} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/patch_nemu_animation.py)
+    endif()
+  endforeach()
+  set_property(TARGET app PROPERTY SOURCES ${led_sources})
+endif()

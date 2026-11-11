@@ -135,5 +135,17 @@ manifest:
     url: https://github.com/sekigon-gonnoc/zmk-feature-nemu-link-scan
     revision: 2c1d1eebaf8eb6120b4492cec09d74230e29762d
     path: modules/zmk-feature-nemu-link-scan
+  - name: zmk-driver-animation
+    remote: cormoran
+    revision: fa0479ec3b2fe04a96d9244e620d3c5dd2cfb280
+    path: modules/zmk-driver-animation
+  - name: zmk-driver-ext-power-transient
+    remote: cormoran
+    revision: 92b00e3acb438df77c374a2f79857a8406c41bed
+    path: modules/zmk-driver-ext-power-transient
+  - name: zmk-rgbled-widget
+    url: https://github.com/caksoylar/zmk-rgbled-widget
+    revision: e6b467792a1dabef8cfa5c9fd26bfefc9c16662b
+    path: modules/zmk-rgbled-widget
   self:
     path: config

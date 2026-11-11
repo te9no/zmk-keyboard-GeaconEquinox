@@ -1,137 +1,50 @@
-/* Finite status animation; never run SPI writes in input/event work queues. */
-#include <string.h>
+/* Radio callbacks publish state; animation control runs off the input queue. */
 #include <zephyr/kernel.h>
-#include <zephyr/drivers/gpio.h>
-#include <zephyr/drivers/led_strip.h>
+#include <zephyr/device.h>
 #include <zephyr/sys/atomic.h>
-#include <zmk/activity.h>
 #include <zmk/nemu_link/control.h>
-#include <zmk/event_manager.h>
-#include <zmk/events/activity_state_changed.h>
-#include <zmk/events/battery_state_changed.h>
+#include <zmk_driver_animation/drivers/animation_control.h>
 
-static const struct device *strip = DEVICE_DT_GET(DT_NODELABEL(equinox_status_strip));
-static const struct gpio_dt_spec power = GPIO_DT_SPEC_GET(DT_NODELABEL(status_power), gpios);
 static struct k_work_q queue;
-K_THREAD_STACK_DEFINE(stack, 1536);
-static struct k_work_delayable work;
-static atomic_t ready;
-static atomic_t active;
-static atomic_t restart;
-static atomic_t battery = -1;
-enum indicator { STARTUP, SWITCHING, MODE_BLE, MODE_NEMU, MODE_ERROR };
-static atomic_t indicator;
-static bool powered;
-static unsigned frame;
-static struct led_rgb pixels[4];
-
-/* Callbacks only publish state; the LED queue owns GPIO/SPI and animation. */
-static void show_mode(enum indicator value) {
-    atomic_set(&indicator, value);
-    atomic_set(&restart, 1);
-    if (atomic_get(&ready)) {
-        k_work_reschedule_for_queue(&queue, &work, K_NO_WAIT);
+K_THREAD_STACK_DEFINE(stack, 2048);
+static struct k_work work;
+static atomic_t state;
+static atomic_t boot_transition = IS_ENABLED(CONFIG_ZMK_NEMU_LINK_BOOT_ESB);
+static const struct device *const animations[] = {
+    DEVICE_DT_GET(DT_NODELABEL(nemu_switching_animation)),
+    DEVICE_DT_GET(DT_NODELABEL(nemu_ble_animation)),
+    DEVICE_DT_GET(DT_NODELABEL(nemu_esb_animation)),
+    DEVICE_DT_GET(DT_NODELABEL(nemu_error_animation)),
+};
+static void display(struct k_work *unused) {
+    ARG_UNUSED(unused);
+    unsigned s = atomic_get(&state);
+    animation_control_play_now(DEVICE_DT_GET(DT_NODELABEL(animation_control)),
+                               animations[s], true, s == 0 ? 8000 : 2400);
+}
+static void notify(unsigned s) {
+    atomic_set(&state, s);
+    k_work_submit_to_queue(&queue, &work);
+}
+static void requested(bool esb) {
+    ARG_UNUSED(esb);
+    if (!atomic_get(&boot_transition)) {
+        notify(0);
     }
 }
-static void mode_requested(bool esb) {
-    ARG_UNUSED(esb);
-    show_mode(SWITCHING);
-}
-static void mode_changed(bool esb, int error) {
-    show_mode(error ? MODE_ERROR : esb ? MODE_NEMU : MODE_BLE);
+static void changed(bool esb, int error) {
+    /* Preserve the original battery/endpoint sequence on a successful boot. */
+    if (atomic_cas(&boot_transition, 1, 0) && !error) {
+        return;
+    }
+    notify(error ? 3 : esb ? 2 : 1);
 }
 static const struct zmk_nemu_link_observer observer = {
-    .mode_requested = mode_requested,
-    .mode_changed = mode_changed,
+    .mode_requested = requested, .mode_changed = changed,
 };
-
-static void off(void) {
-    memset(pixels, 0, sizeof(pixels));
-    if (powered) { (void)led_strip_update_rgb(strip, pixels, 4); }
-    gpio_pin_set_dt(&power, 0);
-    powered = false;
-}
-
-static void tick(struct k_work *unused) {
-    ARG_UNUSED(unused);
-    if (!atomic_get(&active)) { off(); return; }
-    if (atomic_set(&restart, 0)) { frame = 0; }
-    if (!powered) {
-        if (gpio_pin_set_dt(&power, 1) < 0) { return; }
-        powered = true;
-        k_msleep(1);
-    }
-    enum indicator mode = atomic_get(&indicator);
-    /* Bound even a transition that never reports completion. Idle always wins.
-     * Colors report local mode, never peer connectivity or delivery. */
-    unsigned limit = mode == SWITCHING ? 200 : mode == STARTUP ? 80 : 60;
-    if (frame >= limit) { off(); return; }
-    static const struct led_rgb rainbow[4] = {
-        {.r=24,.g=0,.b=6}, {.r=12,.g=18,.b=0},
-        {.r=0,.g=20,.b=12}, {.r=6,.g=0,.b=24}
-    };
-    int soc = atomic_get(&battery);
-    for (int i = 0; i < 4; i++) {
-        if (mode != STARTUP) {
-            struct led_rgb color = mode == SWITCHING ? (struct led_rgb){.r=20,.g=12} :
-                                   mode == MODE_ERROR ? (struct led_rgb){.r=24} :
-                                   mode == MODE_NEMU ? (struct led_rgb){.g=24} :
-                                                       (struct led_rgb){.b=28};
-            unsigned brightness = (mode == SWITCHING || mode == MODE_ERROR)
-                                      ? ((frame / 8) % 2 ? 0 : 20)
-                                      : (frame < 10 ? frame + 1 : frame < 40 ? 10 : (60-frame)/2);
-            unsigned scale = (mode == SWITCHING || mode == MODE_ERROR) ? 20 : 10;
-            pixels[i] = (struct led_rgb){.r=color.r*brightness/scale,
-                                         .g=color.g*brightness/scale,
-                                         .b=color.b*brightness/scale};
-        } else if (frame < 40) {
-            unsigned pulse = frame < 20 ? frame + 1 : 40 - frame;
-            struct led_rgb c = rainbow[(i + frame / 10) % 4];
-            pixels[i] = (struct led_rgb){.r=c.r*pulse/20, .g=c.g*pulse/20, .b=c.b*pulse/20};
-        } else {
-            pixels[i] = soc < 0 ? (struct led_rgb){.r=16,.g=8} :
-                        soc < 25 ? (struct led_rgb){.r=24} :
-                        soc < 65 ? (struct led_rgb){.g=20} :
-                                   (struct led_rgb){.g=10,.b=28};
-        }
-    }
-    if (!atomic_get(&active) || led_strip_update_rgb(strip, pixels, 4) < 0) {
-        off(); return;
-    }
-    frame++;
-    k_work_reschedule_for_queue(&queue, &work, K_MSEC(40));
-}
-
-static int event(const zmk_event_t *eh) {
-    const struct zmk_battery_state_changed *b = as_zmk_battery_state_changed(eh);
-    if (b) { atomic_set(&battery, b->state_of_charge); return ZMK_EV_EVENT_BUBBLE; }
-    const struct zmk_activity_state_changed *a = as_zmk_activity_state_changed(eh);
-    if (a && atomic_get(&ready)) {
-        atomic_set(&active, a->state == ZMK_ACTIVITY_ACTIVE);
-        if (a->state == ZMK_ACTIVITY_ACTIVE) {
-            atomic_set(&indicator, STARTUP);
-            atomic_set(&restart, 1);
-        }
-        k_work_reschedule_for_queue(&queue, &work, K_NO_WAIT);
-    }
-    return ZMK_EV_EVENT_BUBBLE;
-}
-ZMK_LISTENER(equinox_nemu_led, event);
-ZMK_SUBSCRIPTION(equinox_nemu_led, zmk_activity_state_changed);
-ZMK_SUBSCRIPTION(equinox_nemu_led, zmk_battery_state_changed);
-
 static int init(void) {
-    if (!device_is_ready(strip) || !gpio_is_ready_dt(&power)) { return -ENODEV; }
-    int err = gpio_pin_configure_dt(&power, GPIO_OUTPUT_INACTIVE);
-    if (err) { return err; }
-    k_work_init_delayable(&work, tick);
+    k_work_init(&work, display);
     k_work_queue_start(&queue, stack, K_THREAD_STACK_SIZEOF(stack), 10, NULL);
-    err = zmk_nemu_link_register_observer(&observer);
-    if (err) { return err; }
-    atomic_set(&ready, 1);
-    atomic_set(&active, zmk_activity_get_state() == ZMK_ACTIVITY_ACTIVE);
-    atomic_set(&restart, 1);
-    k_work_reschedule_for_queue(&queue, &work, K_MSEC(500));
-    return 0;
+    return zmk_nemu_link_register_observer(&observer);
 }
 SYS_INIT(init, APPLICATION, 98);
