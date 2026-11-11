@@ -3,7 +3,9 @@
 #include <zephyr/kernel.h>
 #include <zephyr/sys/printk.h>
 #include <cormoran/pmw3610/pmw3610_api.h>
+#if !IS_ENABLED(CONFIG_ZMK_NEMU_LINK)
 #include <zmk/split/bluetooth/peripheral.h>
+#endif
 #if IS_ENABLED(CONFIG_EQUINOX_CRASH_DIAGNOSTICS)
 #include <cormoran/zmk/watchdog.h>
 #endif
@@ -37,10 +39,17 @@ static void report_thread(void *a, void *b, void *c) {
             }
         }
 #endif
+#if IS_ENABLED(CONFIG_ZMK_NEMU_LINK)
+        /* This diagnostic has no nemu peer-state API; do not report radio
+         * ownership as a connected peer. -1 explicitly means unavailable. */
+        int split_connected = -1;
+#else
+        int split_connected = zmk_split_bt_peripheral_is_connected();
+#endif
         printk("PMW ready=%d device_ready=%d init_error=%d irq_raw=%d split_connected=%d uptime_ms=%lld\n",
                pmw3610_is_ready(dev), device_is_ready(dev), pmw3610_get_init_error(dev),
                gpio_is_ready_dt(&irq) ? gpio_pin_get_raw(irq.port, irq.pin) : -1,
-               zmk_split_bt_peripheral_is_connected(), k_uptime_get());
+               split_connected, k_uptime_get());
         k_sleep(K_SECONDS(5));
     }
 }

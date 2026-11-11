@@ -41,3 +41,27 @@ build-tree source; the shared dependency checkout is not modified.
 
 Private diagnostic logs reside in work/equinox-nemu-diagnostics. No keys or
 settings were erased. Published release assets have not been replaced.
+
+## Left dial / unwanted peer keymap synchronization
+
+The left PAT9125 responds at 0x75 with product ID 31:91, device ready and
+initialization result zero. This does not by itself verify rotation/scroll.
+
+The receiver configuration incorrectly enabled NEMU_LINK_STUDIO_ENDPOINT
+with STUDIO_SOURCE=0, while both keyboards are split peripherals without peer
+Studio endpoints. Left-side logs showed repeated application ACK timeouts,
+re-authentication, and rejected 0x80 Studio frames. Disabling the CCM/RADIO
+overlap optimization did not resolve this and was reverted.
+
+Following https://nemu-link-studio.pages.dev/docs, the receiver now uses local
+Studio/RPC and Dynamic Settings without peer keymap synchronization. The
+endpoint is disabled and the source override removed. After flashing this
+receiver configuration, approximately 25 seconds of concurrent left/receiver
+logs showed an established link, zero data rejections, and no repeated ACK
+timeouts. Initial authentication retries are distinct from sustained failure.
+
+Rotation and right trackball movement remain unverified pending user input.
+Both keyboards and the receiver currently have temporary diagnostic logging;
+restore normal images after the movement tests. Diagnostic PMW readiness now
+builds without BLE split dependencies and reports unavailable connection
+status as -1 rather than claiming a connected peer.
