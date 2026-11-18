@@ -39,6 +39,14 @@ bool equinox_shared_settings_ready_for_ble(void) {
 }
 """
 else:
+    # A timed-out clock request has already been cancelled or released by
+    # radio_hw. Retry once before the link layer drops input and restarts HELLO.
+    wake = '    int err = nemu_link_radio_wake();'
+    assert s.count(wake) == 1
+    s = s.replace(wake, wake + """
+    if (err == -EAGAIN) {
+        err = nemu_link_radio_wake();
+    }""")
     marker='if (!nemu_link_studio_synced() || nemu_link_studio_radio_busy()) {'
     assert s.count(marker)==1
     s=s.replace(marker,'if ((!nemu_link_studio_synced() && !equinox_shared_settings_ready_for_ble()) || nemu_link_studio_radio_busy()) {')
