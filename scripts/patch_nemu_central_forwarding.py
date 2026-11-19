@@ -3,7 +3,7 @@ import hashlib
 import pathlib
 import sys
 source = pathlib.Path(sys.argv[1]).read_bytes()
-if hashlib.sha256(source).hexdigest() != "f1a9e10f72674862f355c2a890e6b2418fd90a15158a2d97a1513cecbfca4db7":
+if hashlib.sha256(source).hexdigest() != "c4304e70be427c5ca383819224a1b62d2d965612f2d09054af6acb0201fad190":
     raise SystemExit("Unreviewed split peripheral source; review mode guard")
 needle = b"int split_peripheral_listener(const zmk_event_t *eh) {"
 assert source.count(needle) == 1

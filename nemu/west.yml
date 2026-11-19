@@ -22,8 +22,8 @@ manifest:
     revision: 4362133dbfbf66788b66b0a3e3c410b9232c06cb
     path: modules/zmk-driver-spi-three-wire
   - name: zmk
-    url: https://github.com/sekigon-gonnoc/zmk
-    revision: c2db9b12bf20b8cb7e938fe414d3347ed55a21a1
+    url: https://github.com/te9no/zmk
+    revision: 0284acd72ae8cc50ebe929cbcfa38114bc8c781c
     import: app/west.yml
   - name: zmk-feature-nemu-link
     url: https://github.com/sekigon-gonnoc/zmk-feature-nemu-link
